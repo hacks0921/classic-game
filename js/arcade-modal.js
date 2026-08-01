@@ -810,7 +810,7 @@ class ArcadeModalManager {
     /* ───────────── TETRIS STYLE ───────────── */
     runTetris() {
         const W = this.canvas.width, H = this.canvas.height;
-        const BLOCK = 20;
+        const BLOCK = 21;
         const COLS = 10;
         const ROWS = 19;
         const boardX = Math.floor((W - COLS * BLOCK) / 2);
@@ -818,30 +818,43 @@ class ArcadeModalManager {
 
         let board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
         let score = 0;
+        let linesCleared = 0;
+        let level = 1;
         let gameOver = false;
         let lastDrop = 0;
 
         const SHAPES = [
-            [[1, 1, 1, 1]],
-            [[1, 1], [1, 1]],
-            [[0, 1, 0], [1, 1, 1]],
-            [[1, 0, 0], [1, 1, 1]],
-            [[0, 0, 1], [1, 1, 1]],
-            [[0, 1, 1], [1, 1, 0]],
-            [[1, 1, 0], [0, 1, 1]]
+            [[1, 1, 1, 1]], // I
+            [[1, 1], [1, 1]], // O
+            [[0, 1, 0], [1, 1, 1]], // T
+            [[1, 0, 0], [1, 1, 1]], // L
+            [[0, 0, 1], [1, 1, 1]], // J
+            [[0, 1, 1], [1, 1, 0]], // S
+            [[1, 1, 0], [0, 1, 1]]  // Z
         ];
         const COLORS = ['#00ffff', '#ffff00', '#dfb7ff', '#ffb4ab', '#39ff14', '#79ff5b', '#ff4d6d'];
 
         let piece = null;
+        let nextPiece = null;
+
+        const getRandomPiece = () => {
+            const idx = Math.floor(Math.random() * SHAPES.length);
+            return {
+                shape: SHAPES[idx],
+                color: COLORS[idx]
+            };
+        };
 
         const spawnPiece = () => {
-            const typeIdx = Math.floor(Math.random() * SHAPES.length);
+            if (!nextPiece) nextPiece = getRandomPiece();
             piece = {
-                shape: SHAPES[typeIdx],
-                color: COLORS[typeIdx],
-                x: Math.floor(COLS / 2) - 1,
+                shape: nextPiece.shape,
+                color: nextPiece.color,
+                x: Math.floor(COLS / 2) - Math.floor(nextPiece.shape[0].length / 2),
                 y: 0
             };
+            nextPiece = getRandomPiece();
+
             if (collide(piece.x, piece.y, piece.shape)) {
                 gameOver = true;
                 if (window.retroAudio) window.retroAudio.playGameOver();
@@ -909,7 +922,9 @@ class ArcadeModalManager {
                     }
                 }
                 if (lines > 0) {
-                    score += lines * 200;
+                    linesCleared += lines;
+                    score += lines * 200 * level;
+                    level = Math.floor(linesCleared / 5) + 1;
                     document.getElementById('arcade-modal-score').textContent = `SCORE: ${score}`;
                     if (window.retroAudio) window.retroAudio.playCoin();
                 }
@@ -920,8 +935,11 @@ class ArcadeModalManager {
         const restart = () => {
             board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
             score = 0;
+            linesCleared = 0;
+            level = 1;
             gameOver = false;
             lastDrop = 0;
+            nextPiece = null;
             document.getElementById('arcade-modal-score').textContent = 'SCORE: 0';
             spawnPiece();
         };
@@ -955,18 +973,49 @@ class ArcadeModalManager {
         this.addListener(window, 'keydown', onKeyDown);
 
         const loop = (timestamp) => {
-            if (!gameOver && timestamp - lastDrop > 450) {
+            const dropInterval = Math.max(80, 450 - (level - 1) * 35);
+            if (!gameOver && timestamp - lastDrop > dropInterval) {
                 lastDrop = timestamp;
                 drop();
             }
 
+            // ── 렌더링 ──
             this.ctx.fillStyle = '#0a0a0b';
             this.ctx.fillRect(0, 0, W, H);
 
-            this.ctx.strokeStyle = '#39ff14';
+            // 1. 왼쪽 사이드 패널 (아케이드 타이틀 & 설명)
+            this.ctx.fillStyle = '#161618';
+            this.ctx.fillRect(15, boardY - 2, 175, ROWS * BLOCK + 4);
+            this.ctx.strokeStyle = '#3c4b35';
             this.ctx.lineWidth = 2;
+            this.ctx.strokeRect(15, boardY - 2, 175, ROWS * BLOCK + 4);
+
+            this.ctx.fillStyle = '#39ff14';
+            this.ctx.font = 'bold 16px monospace';
+            this.ctx.fillText('TETRIS RETRO', 30, boardY + 25);
+            this.ctx.fillStyle = '#baccb0';
+            this.ctx.font = '11px monospace';
+            this.ctx.fillText('-----------------', 30, boardY + 40);
+            this.ctx.fillText('CONTROLS:', 30, boardY + 65);
+            this.ctx.fillText('• D-PAD: MOVE/DROP', 35, boardY + 85);
+            this.ctx.fillText('• ROTATE: TURN', 35, boardY + 105);
+            this.ctx.fillText('• SWIPE: DIRECT', 35, boardY + 125);
+
+            this.ctx.fillStyle = '#dfb7ff';
+            this.ctx.font = 'bold 13px monospace';
+            this.ctx.fillText('★ HIGH SCORE ★', 30, boardY + 175);
+            this.ctx.fillStyle = '#efffe3';
+            this.ctx.font = 'bold 16px monospace';
+            this.ctx.fillText('99,990 PTS', 30, boardY + 200);
+
+            // 2. 중앙 메인 보드
+            this.ctx.fillStyle = '#050505';
+            this.ctx.fillRect(boardX - 2, boardY - 2, COLS * BLOCK + 4, ROWS * BLOCK + 4);
+            this.ctx.strokeStyle = '#39ff14';
+            this.ctx.lineWidth = 3;
             this.ctx.strokeRect(boardX - 2, boardY - 2, COLS * BLOCK + 4, ROWS * BLOCK + 4);
 
+            // 보드 그리드 및 쌓인 블록
             for (let r = 0; r < ROWS; r++) {
                 for (let c = 0; c < COLS; c++) {
                     const bx = boardX + c * BLOCK;
@@ -974,13 +1023,17 @@ class ArcadeModalManager {
                     if (board[r][c]) {
                         this.ctx.fillStyle = board[r][c];
                         this.ctx.fillRect(bx + 1, by + 1, BLOCK - 2, BLOCK - 2);
+                        this.ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                        this.ctx.fillRect(bx + 1, by + 1, BLOCK - 2, 4);
                     } else {
-                        this.ctx.strokeStyle = '#18181a';
+                        this.ctx.strokeStyle = '#141416';
+                        this.ctx.lineWidth = 0.5;
                         this.ctx.strokeRect(bx, by, BLOCK, BLOCK);
                     }
                 }
             }
 
+            // 떨어지는 현재 블록
             if (piece && !gameOver) {
                 this.ctx.fillStyle = piece.color;
                 for (let r = 0; r < piece.shape.length; r++) {
@@ -989,10 +1042,63 @@ class ArcadeModalManager {
                             const bx = boardX + (piece.x + c) * BLOCK;
                             const by = boardY + (piece.y + r) * BLOCK;
                             this.ctx.fillRect(bx + 1, by + 1, BLOCK - 2, BLOCK - 2);
+                            this.ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                            this.ctx.fillRect(bx + 1, by + 1, BLOCK - 2, 4);
+                            this.ctx.fillStyle = piece.color;
                         }
                     }
                 }
             }
+
+            // 3. 오른쪽 사이드 패널 (Next Piece & Stats)
+            const rightX = boardX + COLS * BLOCK + 20;
+            const rightW = W - rightX - 15;
+
+            this.ctx.fillStyle = '#161618';
+            this.ctx.fillRect(rightX, boardY - 2, rightW, ROWS * BLOCK + 4);
+            this.ctx.strokeStyle = '#3c4b35';
+            this.ctx.lineWidth = 2;
+            this.ctx.strokeRect(rightX, boardY - 2, rightW, ROWS * BLOCK + 4);
+
+            // NEXT 미리보기 박스
+            this.ctx.fillStyle = '#39ff14';
+            this.ctx.font = 'bold 14px monospace';
+            this.ctx.fillText('NEXT', rightX + 15, boardY + 25);
+
+            this.ctx.fillStyle = '#050505';
+            this.ctx.fillRect(rightX + 15, boardY + 35, 100, 80);
+            this.ctx.strokeStyle = '#39ff14';
+            this.ctx.lineWidth = 1;
+            this.ctx.strokeRect(rightX + 15, boardY + 35, 100, 80);
+
+            if (nextPiece) {
+                this.ctx.fillStyle = nextPiece.color;
+                const shape = nextPiece.shape;
+                const offX = rightX + 15 + Math.floor((100 - shape[0].length * 16) / 2);
+                const offY = boardY + 35 + Math.floor((80 - shape.length * 16) / 2);
+                for (let r = 0; r < shape.length; r++) {
+                    for (let c = 0; c < shape[r].length; c++) {
+                        if (shape[r][c]) {
+                            this.ctx.fillRect(offX + c * 16, offY + r * 16, 14, 14);
+                        }
+                    }
+                }
+            }
+
+            // LINES & LEVEL 전광판
+            this.ctx.fillStyle = '#ffb4ab';
+            this.ctx.font = 'bold 12px monospace';
+            this.ctx.fillText('LINES', rightX + 15, boardY + 145);
+            this.ctx.fillStyle = '#efffe3';
+            this.ctx.font = 'bold 16px monospace';
+            this.ctx.fillText(String(linesCleared).padStart(4, '0'), rightX + 15, boardY + 165);
+
+            this.ctx.fillStyle = '#dfb7ff';
+            this.ctx.font = 'bold 12px monospace';
+            this.ctx.fillText('LEVEL', rightX + 15, boardY + 200);
+            this.ctx.fillStyle = '#efffe3';
+            this.ctx.font = 'bold 16px monospace';
+            this.ctx.fillText(String(level).padStart(2, '0'), rightX + 15, boardY + 220);
 
             if (gameOver) {
                 this.ctx.fillStyle = 'rgba(0,0,0,0.85)';
@@ -1003,7 +1109,7 @@ class ArcadeModalManager {
                 this.ctx.fillText('TETRIS GAME OVER', W / 2, H / 2 - 40);
                 this.ctx.fillStyle = '#efffe3';
                 this.ctx.font = '18px monospace';
-                this.ctx.fillText(`FINAL SCORE: ${score}`, W / 2, H / 2 + 5);
+                this.ctx.fillText(`FINAL SCORE: ${score}  |  LINES: ${linesCleared}`, W / 2, H / 2 + 5);
                 this.ctx.font = '14px monospace';
                 this.ctx.fillStyle = '#39ff14';
                 this.ctx.fillText('TAP CANVAS TO PLAY AGAIN', W / 2, H / 2 + 45);
@@ -1012,6 +1118,9 @@ class ArcadeModalManager {
 
             this.animId = requestAnimationFrame(loop);
         };
+
+        loop(0);
+    }
 
         loop(0);
     }
