@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PIXEL QUEST - PLAYHUB_RETRO</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;800&amp;family=Space+Mono:wght@700&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "background": "#131314",
+                      "tertiary-fixed": "#ffdadb",
+                      "tertiary-container": "#ffd3d5",
+                      "outline-variant": "#3c4b35",
+                      "inverse-on-surface": "#313031",
+                      "tertiary-fixed-dim": "#ffb2b8",
+                      "on-tertiary-fixed": "#40000f",
+                      "surface-variant": "#353436",
+                      "error-container": "#93000a",
+                      "surface-container-low": "#1c1b1c",
+                      "secondary-fixed": "#f1daff",
+                      "surface-container-high": "#2a2a2b",
+                      "on-surface": "#e5e2e3",
+                      "primary": "#efffe3",
+                      "on-error": "#690005",
+                      "on-secondary": "#4b007e",
+                      "secondary": "#dfb7ff",
+                      "on-primary-fixed": "#022100",
+                      "surface-container": "#201f20",
+                      "on-tertiary-fixed-variant": "#91002d",
+                      "primary-fixed": "#79ff5b",
+                      "on-secondary-container": "#f7e6ff",
+                      "on-tertiary-container": "#c3003f",
+                      "primary-fixed-dim": "#2ae500",
+                      "on-primary-container": "#107100",
+                      "on-background": "#e5e2e3",
+                      "surface": "#131314",
+                      "secondary-container": "#9d05ff",
+                      "outline": "#85967c",
+                      "on-secondary-fixed": "#2d004f",
+                      "inverse-surface": "#e5e2e3",
+                      "on-primary-fixed-variant": "#095300",
+                      "surface-dim": "#131314",
+                      "surface-tint": "#2ae500",
+                      "surface-bright": "#3a393a",
+                      "inverse-primary": "#106e00",
+                      "on-surface-variant": "#baccb0",
+                      "surface-container-lowest": "#0e0e0f",
+                      "primary-container": "#39ff14",
+                      "error": "#ffb4ab",
+                      "tertiary": "#fff9f8",
+                      "surface-container-highest": "#353436",
+                      "secondary-fixed-dim": "#dfb7ff",
+                      "on-secondary-fixed-variant": "#6b00b0",
+                      "on-primary": "#053900",
+                      "on-tertiary": "#67001d",
+                      "on-error-container": "#ffdad6"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "base_unit": "4px",
+                      "margin-mobile": "16px",
+                      "margin-desktop": "32px",
+                      "grid_cols": "12",
+                      "gutter": "16px"
+              },
+              "fontFamily": {
+                      "body-md": ["Sora"],
+                      "headline-xl": ["Sora"],
+                      "headline-lg-mobile": ["Sora"],
+                      "headline-lg": ["Sora"],
+                      "label-mono": ["Space Mono"]
+              },
+              "fontSize": {
+                      "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "headline-xl": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "800"}],
+                      "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "800"}],
+                      "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                      "label-mono": ["14px", {"lineHeight": "1.0", "fontWeight": "700"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .crt-scanlines {
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 3px 100%;
+            pointer-events: none;
+        }
+        .neon-text-primary { text-shadow: 0 0 8px rgba(239,255,227,0.6); }
+        .hard-shadow-primary { box-shadow: 4px 4px 0px 0px #095300; }
+        .brutal-border { border: 2px solid #3c4b35; }
+        .machine-shell { background-color: #0A0A0B; border: 1px solid #222222; }
+        .active-glow { box-shadow: inset 0 0 10px rgba(57, 255, 20, 0.8); }
+        .retro-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+        .retro-scrollbar::-webkit-scrollbar-track { background: #131314; border-left: 1px solid #3c4b35; }
+        .retro-scrollbar::-webkit-scrollbar-thumb { background: #39ff14; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        .blinking-cursor::after { content: '█'; color: #39ff14; animation: blink 1s step-end infinite; margin-left: 4px; }
+        body { min-height: max(884px, 100dvh); }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col relative overflow-x-hidden">
+<!-- CRT Overlay -->
+<div class="fixed inset-0 crt-scanlines z-[-1]"></div>
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky border-b-4 border-outline-variant flex justify-between items-center px-margin-mobile h-16 z-50 bg-background text-primary">
+<div class="flex items-center gap-4">
+<a href="index.html" class="hover:bg-surface-variant p-2 rounded-none active:translate-x-0.5 active:translate-y-0.5 transition-transform duration-75 text-on-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">arrow_back</span>
+</a>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">videogame_asset</span>
+</div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-black text-primary drop-shadow-[0_0_8px_rgba(239,255,227,0.6)] uppercase">
+    <a href="index.html">PLAYHUB_RETRO</a>
+</h1>
+<div class="flex items-center gap-4">
+<a href="leaderboard.html" class="hidden md:block font-label-mono text-xs text-on-surface-variant hover:text-primary uppercase">Leaderboard</a>
+<a href="profile.html" class="hover:bg-surface-variant p-2 rounded-none active:translate-x-0.5 active:translate-y-0.5 transition-transform duration-75 text-on-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+</a>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow px-margin-mobile md:px-margin-desktop py-8 pb-32 max-w-7xl mx-auto w-full flex flex-col gap-8 md:gap-16">
+<!-- Hero Section: Game Preview & Start Button -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-gutter md:gap-8 items-start">
+<!-- Game Screen Canvas Viewport -->
+<div class="md:col-span-8 machine-shell rounded-none brutal-border relative aspect-video overflow-hidden flex flex-col">
+<!-- Header Bar -->
+<div class="h-8 bg-on-secondary flex items-center px-4 justify-between border-b border-[#222222]">
+<span class="font-label-mono text-label-mono text-secondary uppercase tracking-widest text-xs">ROM://PIXEL_QUEST_CANVAS.BIN</span>
+<div class="flex gap-2">
+<div class="w-3 h-3 bg-error-container"></div>
+<div class="w-3 h-3 bg-surface-variant"></div>
+<div class="w-3 h-3 bg-primary-container active-glow"></div>
+</div>
+</div>
+<!-- HTML5 Game Viewport -->
+<div class="flex-grow relative bg-black flex items-center justify-center overflow-hidden">
+<canvas id="pixel-quest-canvas" width="800" height="450" class="w-full h-full object-contain bg-black"></canvas>
+</div>
+<!-- Touch D-Pad / Controls for Mobile & Mouse -->
+<div class="bg-surface-container-high p-3 flex justify-between items-center border-t border-outline-variant">
+<div class="flex gap-2">
+<button id="btn-left" class="bg-surface-variant text-primary font-label-mono px-4 py-2 border border-outline font-bold text-sm select-none active:bg-primary-container active:text-black">◀ LEFT</button>
+<button id="btn-right" class="bg-surface-variant text-primary font-label-mono px-4 py-2 border border-outline font-bold text-sm select-none active:bg-primary-container active:text-black">RIGHT ▶</button>
+</div>
+<button id="btn-jump" class="bg-primary-container text-on-primary-container font-label-mono px-6 py-2 border border-primary-container font-bold text-sm select-none active:scale-95">JUMP [SPACE]</button>
+</div>
+</div>
+<!-- Game Info & Action -->
+<div class="md:col-span-4 flex flex-col gap-6">
+<div>
+<div class="inline-block px-2 py-1 bg-surface-container-high border border-outline-variant font-label-mono text-label-mono text-primary-container mb-2 text-xs">
+                        SYS.REQ: 8-BIT / CANVAS READY
+                    </div>
+<h2 class="font-headline-xl text-headline-xl text-primary uppercase mb-2">Pixel Quest</h2>
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-primary-container text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-primary-container text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-primary-container text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-primary-container text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-surface-variant text-sm" style="font-variation-settings: 'FILL' 1;">star_half</span>
+<span class="font-label-mono text-label-mono text-on-surface-variant ml-2 text-xs">4.9 [LIVE]</span>
+</div>
+</div>
+<!-- Primary Action: Start Play -->
+<button id="btn-start-game" class="w-full bg-primary-container text-on-primary-container font-headline-lg-mobile text-headline-lg-mobile uppercase py-6 rounded-none hard-shadow-primary active:translate-x-1 active:translate-y-1 active:shadow-none transition-all duration-75 border-2 border-on-primary-container flex flex-col items-center justify-center gap-2 relative overflow-hidden group">
+<span class="relative z-10 font-black tracking-wider">INSERT COIN</span>
+<span class="relative z-10 font-label-mono text-label-mono text-sm blinking-cursor">START GAME</span>
+<div class="absolute inset-0 bg-[linear-gradient(transparent_50%,rgba(0,0,0,0.1)_50%)] bg-[length:100%_4px] pointer-events-none group-hover:opacity-50 transition-opacity"></div>
+</button>
+<!-- Metadata Chips -->
+<div class="flex flex-wrap gap-2 mt-4">
+<span class="px-3 py-1 bg-surface-container border border-outline-variant font-label-mono text-label-mono text-on-surface text-xs uppercase">RPG</span>
+<span class="px-3 py-1 bg-surface-container border border-outline-variant font-label-mono text-label-mono text-on-surface text-xs uppercase">ADVENTURE</span>
+<span class="px-3 py-1 bg-surface-container border border-outline-variant font-label-mono text-label-mono text-on-surface text-xs uppercase">PLAYABLE</span>
+</div>
+</div>
+</section>
+<!-- Details & High Scores Bento Grid -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-gutter md:gap-8">
+<!-- Description -->
+<div class="md:col-span-7 machine-shell p-6 brutal-border flex flex-col gap-4 relative group hover:border-outline transition-colors">
+<div class="absolute top-0 right-0 p-2 bg-on-secondary text-secondary font-label-mono text-[10px] border-b border-l border-[#222222]">SYS.INFO</div>
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface uppercase border-b-2 border-surface-variant pb-2">Mission Briefing</h3>
+<div class="font-label-mono text-label-mono text-on-surface-variant leading-relaxed text-sm space-y-4">
+<p>&gt; INITIATING CANVAS ENGINE...</p>
+<p>&gt; CONTROLS: Arrow Left/Right to move, Space/Arrow Up to Jump.</p>
+<p>Traverse through pixel platforms, avoid deadly spikes, and collect coins to set a high score. Synthesized 8-bit sound effects powered by Web Audio API.</p>
+<p class="text-primary-container blinking-cursor">&gt; READY TO PLAY</p>
+</div>
+</div>
+<!-- High Scores -->
+<div class="md:col-span-5 machine-shell p-0 brutal-border flex flex-col h-full max-h-[400px]">
+<div class="h-12 bg-on-secondary flex items-center px-6 justify-between border-b border-[#222222]">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile text-secondary uppercase tracking-wider text-lg">High Scores</h3>
+<div class="flex bg-background border border-surface-variant">
+<button class="px-3 py-1 font-label-mono text-xs text-primary-container bg-surface-container active-glow">GLB</button>
+<a href="leaderboard.html" class="px-3 py-1 font-label-mono text-xs text-on-surface-variant hover:text-on-surface">LOC</a>
+</div>
+</div>
+<div class="flex-grow overflow-y-auto retro-scrollbar p-6 space-y-3 font-label-mono text-label-mono text-sm">
+<div class="flex justify-between items-center group cursor-default">
+<div class="flex gap-4">
+<span class="text-primary-container">1ST</span>
+<span class="text-on-surface group-hover:text-primary-container transition-colors">Z3R0_C00L</span>
+</div>
+<span class="text-on-surface-variant">9,999,999</span>
+</div>
+<div class="w-full h-px bg-surface-variant"></div>
+<div class="flex justify-between items-center group cursor-default">
+<div class="flex gap-4">
+<span class="text-secondary">2ND</span>
+<span class="text-on-surface group-hover:text-secondary transition-colors">ACID_BURN</span>
+</div>
+<span class="text-on-surface-variant">8,452,100</span>
+</div>
+<div class="w-full h-px bg-surface-variant"></div>
+<div class="flex justify-between items-center group cursor-default">
+<div class="flex gap-4">
+<span class="text-error">3RD</span>
+<span class="text-on-surface group-hover:text-error transition-colors">CR4SH_0VR</span>
+</div>
+<span class="text-on-surface-variant">7,120,450</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Scripts -->
+<script src="js/audio.js"></script>
+<script src="js/pixel-quest.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const game = new PixelQuestGame('pixel-quest-canvas');
+        game.render();
+
+        document.getElementById('btn-start-game').addEventListener('click', () => {
+            game.start();
+        });
+
+        // Touch / Screen Controls
+        const btnLeft = document.getElementById('btn-left');
+        const btnRight = document.getElementById('btn-right');
+        const btnJump = document.getElementById('btn-jump');
+
+        const bindTouch = (el, keyName) => {
+            el.addEventListener('mousedown', () => { game.keys[keyName] = true; });
+            el.addEventListener('mouseup', () => { game.keys[keyName] = false; });
+            el.addEventListener('touchstart', (e) => { e.preventDefault(); game.keys[keyName] = true; });
+            el.addEventListener('touchend', (e) => { e.preventDefault(); game.keys[keyName] = false; });
+        };
+
+        bindTouch(btnLeft, 'left');
+        bindTouch(btnRight, 'right');
+
+        btnJump.addEventListener('click', () => {
+            if (game.isRunning && game.player.grounded) {
+                game.player.vy = game.player.jumpPower;
+                game.player.grounded = false;
+                if (window.retroAudio) window.retroAudio.playJump();
+            } else if (!game.isRunning) {
+                game.start();
+            }
+        });
+    });
+</script>
+</body></html>

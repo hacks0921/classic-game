@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PlayHub Retro - Global Leaderboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;800&amp;family=Space+Mono:wght@700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "background": "#131314",
+                        "tertiary-fixed": "#ffdadb",
+                        "tertiary-container": "#ffd3d5",
+                        "outline-variant": "#3c4b35",
+                        "inverse-on-surface": "#313031",
+                        "tertiary-fixed-dim": "#ffb2b8",
+                        "on-tertiary-fixed": "#40000f",
+                        "surface-variant": "#353436",
+                        "error-container": "#93000a",
+                        "surface-container-low": "#1c1b1c",
+                        "secondary-fixed": "#f1daff",
+                        "surface-container-high": "#2a2a2b",
+                        "on-surface": "#e5e2e3",
+                        "primary": "#efffe3",
+                        "on-error": "#690005",
+                        "on-secondary": "#4b007e",
+                        "secondary": "#dfb7ff",
+                        "on-primary-fixed": "#022100",
+                        "surface-container": "#201f20",
+                        "on-tertiary-fixed-variant": "#91002d",
+                        "primary-fixed": "#79ff5b",
+                        "on-secondary-container": "#f7e6ff",
+                        "on-tertiary-container": "#c3003f",
+                        "primary-fixed-dim": "#2ae500",
+                        "on-primary-container": "#107100",
+                        "on-background": "#e5e2e3",
+                        "surface": "#131314",
+                        "secondary-container": "#9d05ff",
+                        "outline": "#85967c",
+                        "on-secondary-fixed": "#2d004f",
+                        "inverse-surface": "#e5e2e3",
+                        "on-primary-fixed-variant": "#095300",
+                        "surface-dim": "#131314",
+                        "surface-tint": "#2ae500",
+                        "surface-bright": "#3a393a",
+                        "inverse-primary": "#106e00",
+                        "on-surface-variant": "#baccb0",
+                        "surface-container-lowest": "#0e0e0f",
+                        "primary-container": "#39ff14",
+                        "error": "#ffb4ab",
+                        "tertiary": "#fff9f8",
+                        "surface-container-highest": "#353436",
+                        "secondary-fixed-dim": "#dfb7ff",
+                        "on-secondary-fixed-variant": "#6b00b0",
+                        "on-primary": "#053900",
+                        "on-tertiary": "#67001d",
+                        "on-error-container": "#ffdad6"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "base_unit": "4px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "32px",
+                        "grid_cols": "12",
+                        "gutter": "16px"
+                    },
+                    fontFamily: {
+                        "body-md": ["Sora"],
+                        "headline-xl": ["Sora"],
+                        "headline-lg-mobile": ["Sora"],
+                        "headline-lg": ["Sora"],
+                        "label-mono": ["Space Mono"]
+                    },
+                    fontSize: {
+                        "body-md": ["16px", { lineHeight: "1.6", fontWeight: "400" }],
+                        "headline-xl": ["48px", { lineHeight: "1.1", letterSpacing: "-0.04em", fontWeight: "800" }],
+                        "headline-lg-mobile": ["24px", { lineHeight: "1.2", fontWeight: "800" }],
+                        "headline-lg": ["32px", { lineHeight: "1.2", letterSpacing: "-0.02em", fontWeight: "800" }],
+                        "label-mono": ["14px", { lineHeight: "1.0", fontWeight: "700" }]
+                    }
+                }
+            }
+        };
+    </script>
+<style>
+        .inner-glow-neon { box-shadow: inset 0 0 10px #39ff14; }
+        .block-shadow { box-shadow: 4px 4px 0px 0px #095300; }
+        .pixel-border { border: 2px solid #39ff14; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #131314; border-left: 1px solid #222222; }
+        ::-webkit-scrollbar-thumb { background: #39ff14; }
+        ::-webkit-scrollbar-thumb:hover { background: #79ff5b; }
+        body { min-height: max(884px, 100dvh); }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md overflow-x-hidden">
+<!-- TopAppBar (Mobile) -->
+<header class="w-full top-0 sticky border-b-4 border-outline-variant flex justify-between items-center px-margin-mobile h-16 z-50 bg-background md:hidden">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">videogame_asset</span>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile uppercase font-black text-primary drop-shadow-[0_0_8px_rgba(239,255,227,0.6)]"><a href="index.html">PLAYHUB_RETRO</a></h1>
+</div>
+<a href="profile.html"><span class="material-symbols-outlined text-primary">person</span></a>
+</header>
+<!-- Desktop Nav -->
+<nav class="hidden md:flex justify-between items-center px-margin-desktop py-4 bg-background border-b-4 border-outline-variant sticky top-0 z-50">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary text-3xl">videogame_asset</span>
+<h1 class="font-headline-lg text-headline-lg uppercase font-black text-primary drop-shadow-[0_0_8px_rgba(239,255,227,0.6)]"><a href="index.html">PLAYHUB_RETRO</a></h1>
+</div>
+<div class="flex gap-8">
+<a class="font-label-mono text-label-mono text-outline hover:text-primary transition-colors flex items-center gap-2 uppercase" href="index.html"><span class="material-symbols-outlined">home</span> Home</a>
+<a class="font-label-mono text-label-mono text-outline hover:text-primary transition-colors flex items-center gap-2 uppercase" href="game-detail.html"><span class="material-symbols-outlined">sports_esports</span> Arcade</a>
+<a class="font-label-mono text-label-mono text-primary border-b-2 border-primary pb-1 flex items-center gap-2 uppercase inner-glow-neon bg-primary/10 px-3 py-2" href="leaderboard.html"><span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">emoji_events</span> Leaderboard</a>
+<a class="font-label-mono text-label-mono text-outline hover:text-primary transition-colors flex items-center gap-2 uppercase" href="profile.html"><span class="material-symbols-outlined">person</span> Profile</a>
+</div>
+</nav>
+<main class="flex-grow w-full max-w-[1200px] mx-auto px-margin-mobile md:px-margin-desktop py-8 pb-32 md:pb-8 flex flex-col gap-8">
+<!-- Header Title -->
+<div class="text-center md:text-left mb-4">
+<h2 class="font-headline-xl text-headline-xl text-on-surface uppercase drop-shadow-[0_4px_0_#39ff14]">GLOBAL RANKING</h2>
+<p class="font-label-mono text-label-mono text-primary mt-2">SEASON 42 // NEON DRIFTERS</p>
+</div>
+<!-- Podium Section (Top 3) -->
+<section class="flex justify-center items-end gap-2 md:gap-8 h-64 md:h-80 mb-12">
+<!-- Rank 2 -->
+<div class="flex flex-col items-center w-28 md:w-40 relative group">
+<div class="w-16 h-16 md:w-24 md:h-24 bg-surface-container pixel-border mb-2 relative overflow-hidden group-hover:scale-105 transition-transform">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfPmPGz8G0rCnAn3L0JQjKdLzGZRHOd3bj6Mnh8MsYJjIw6SDGrLT8hRA1mGymTVw86W6RWgnZIb0HdH9cgjTnTpRnCSsu5utQlYHi1oBCCZB2Dcg5kZHTpdKPq17zyvKO3x0m05NzrQGEAp-2mTfsmaj2FMiVYOG2PRwUABh0LcHxH8Q5n_bGeFIKyr5kR0_FuwwxmBbmdZ7Zmm0pXcTycIjFH_GpS2CS7zoAlFtJfAqa8ePYajti3Q"/>
+<div class="absolute bottom-0 w-full bg-black/80 text-center font-label-mono text-[10px] md:text-xs text-primary py-0.5">LVL 89</div>
+</div>
+<div class="font-label-mono text-label-mono text-on-surface truncate w-full text-center">CYBER_NINJA</div>
+<div class="font-label-mono text-xs text-outline mb-2">842,100 PTS</div>
+<div class="w-full h-24 md:h-32 bg-surface-container-high border-t-4 border-l-4 border-r-4 border-outline-variant flex justify-center items-start pt-4 relative">
+<div class="font-headline-lg-mobile text-headline-lg-mobile text-secondary font-black drop-shadow-[0_2px_0_#9d05ff]">2</div>
+<div class="absolute bottom-0 w-full h-1 bg-secondary"></div>
+</div>
+</div>
+<!-- Rank 1 -->
+<div class="flex flex-col items-center w-32 md:w-48 relative group z-10">
+<div class="absolute -top-6 text-primary animate-bounce">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">crown</span>
+</div>
+<div class="w-20 h-20 md:w-32 md:h-32 bg-primary/20 border-4 border-primary inner-glow-neon mb-2 relative overflow-hidden group-hover:scale-105 transition-transform block-shadow">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAthIypq5kezrAoS49OgXWYnsQokUEf1ejk2N9TAtLdkd1EVESZSw-vis314DiKaLF5d3AcK_JHynY42DaeEWlDNGojfdchJQhNziA8kz-j9ATLVMAQCxxZr-3a0Z_p5Lzv-sbYLdJta6HkiPRSepJjvwVNLB6C4ut8jWu8ED-ZGoFsfJMZPwlbXWwWBHKWahEmlHvL8M_IutPX3Uvi3OMoP_bhrHhLD2eDsBJuAstdjLx8wuvG0E8LeQ"/>
+<div class="absolute bottom-0 w-full bg-primary text-on-primary text-center font-label-mono text-[10px] md:text-xs font-black py-1">LVL 99</div>
+</div>
+<div class="font-label-mono text-label-mono text-primary font-black truncate w-full text-center">xX_N30N_Xx</div>
+<div class="font-label-mono text-sm text-primary-container mb-2">1,024,500 PTS</div>
+<div class="w-full h-32 md:h-48 bg-surface-container-high border-t-4 border-l-4 border-r-4 border-primary flex justify-center items-start pt-4 relative inner-glow-neon">
+<div class="font-headline-xl text-headline-xl text-primary font-black drop-shadow-[0_4px_0_#095300]">1</div>
+</div>
+</div>
+<!-- Rank 3 -->
+<div class="flex flex-col items-center w-28 md:w-40 relative group">
+<div class="w-16 h-16 md:w-24 md:h-24 bg-surface-container border-2 border-tertiary-fixed mb-2 relative overflow-hidden group-hover:scale-105 transition-transform">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDC2cDHW4vVMtCEbTuf0YDDWxId-ZUNdBP7xMuF4L9sH_vQAkice9TDByINyxiPQMP9pk8M8fiOuJ_xuyd4V9vNE7gi6GPvwmjWovSa3tDSSHcIgOId8uYYnn51YFBKKP6QUpou_Dm4W_hBwsbQC2Kub_PHdpqlsxuIqEPjKEiU1vpSTs5mK3iSjeEyLykaf7PCzKNllWtlh-aOMXTeU98ixp8u2ANZ6HXqBaWADbfrkVghh6eZVfIdPw"/>
+<div class="absolute bottom-0 w-full bg-black/80 text-center font-label-mono text-[10px] md:text-xs text-tertiary-fixed py-0.5">LVL 82</div>
+</div>
+<div class="font-label-mono text-label-mono text-on-surface truncate w-full text-center">ROBO_PUP</div>
+<div class="font-label-mono text-xs text-outline mb-2">789,330 PTS</div>
+<div class="w-full h-20 md:h-24 bg-surface-container-high border-t-4 border-l-4 border-r-4 border-outline-variant flex justify-center items-start pt-4 relative">
+<div class="font-headline-lg-mobile text-headline-lg-mobile text-tertiary-fixed font-black drop-shadow-[0_2px_0_#91002d]">3</div>
+<div class="absolute bottom-0 w-full h-1 bg-tertiary-fixed"></div>
+</div>
+</div>
+</section>
+<!-- List Section (Rank 4+) -->
+<section class="w-full max-w-[800px] mx-auto flex flex-col gap-3">
+<!-- List Header -->
+<div class="flex px-4 py-2 border-b-2 border-outline-variant font-label-mono text-xs text-outline uppercase">
+<div class="w-12 text-center">Rank</div>
+<div class="flex-grow pl-4">Player</div>
+<div class="w-24 text-right">Score</div>
+</div>
+<!-- List Items -->
+<div class="bg-surface border border-[#222222] p-3 flex items-center hover:border-primary hover:bg-surface-container-low transition-colors group cursor-pointer">
+<div class="w-12 font-label-mono text-label-mono text-on-surface-variant text-center flex flex-col items-center">
+<span>4</span>
+<span class="material-symbols-outlined text-[16px] text-primary">arrow_drop_up</span>
+</div>
+<div class="flex-grow pl-4 flex items-center gap-3">
+<div class="w-8 h-8 bg-surface-container border border-outline hidden sm:block">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1kDuyE1kU0M0YMJ6I0kCq7amTa1pbOwTmWNDX_6wjcCJ0awqSTFt4Qt4uPHcw7QWqW29faqdmVTaIkV1DscUCLe6XbLhD7fDEDuhim3IKDfauDq0wNkcHW9TGTl8vXID0kwCaoEh_O0bqC0jcbP5Eq-FVHasOav5Xvnf10rxZZL4zD5nuM-UMPcKPATWIdsu26qzSai29_Q_yyxAJBIApwpWXGyx32Cy3Z5wjPYkdNkPB7pqMeRkoEg"/>
+</div>
+<span class="font-label-mono text-label-mono text-on-surface group-hover:text-primary transition-colors">&gt; SPACE_DUDE</span>
+</div>
+<div class="w-24 font-label-mono text-label-mono text-primary text-right">750,020</div>
+</div>
+<div class="bg-surface border border-[#222222] p-3 flex items-center hover:border-primary hover:bg-surface-container-low transition-colors group cursor-pointer">
+<div class="w-12 font-label-mono text-label-mono text-on-surface-variant text-center flex flex-col items-center">
+<span>5</span>
+<span class="material-symbols-outlined text-[16px] text-outline">horizontal_rule</span>
+</div>
+<div class="flex-grow pl-4 flex items-center gap-3">
+<div class="w-8 h-8 bg-surface-container border border-outline hidden sm:block">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKmMF1APf2-GA_5s2IGRYkJWFwg7-_okNLgzZkBmnOXSPWvod3263Kda6yYckOkCBJ3NwB2IEFArDKrUs2KSnVK4mUeUem8gyR8ad5cn74F_TZEZ5mP1VxqsIr9euu9QxkOB-1ekSygd6AeAlarqHmn8tU0G1q_NlWW3DrG6sF_8lK_VTYNBJFsjxSiNWBh1eTATZ2Pno00Qmva3NWTMR81Z9MzkSN5aDAXyyv9svL_fIcyY-tL2zn7Q"/>
+</div>
+<span class="font-label-mono text-label-mono text-on-surface group-hover:text-primary transition-colors">&gt; PIXEL_MAGE</span>
+</div>
+<div class="w-24 font-label-mono text-label-mono text-primary text-right">712,400</div>
+</div>
+<div class="bg-surface border border-[#222222] p-3 flex items-center hover:border-primary hover:bg-surface-container-low transition-colors group cursor-pointer">
+<div class="w-12 font-label-mono text-label-mono text-on-surface-variant text-center flex flex-col items-center">
+<span>6</span>
+<span class="material-symbols-outlined text-[16px] text-error">arrow_drop_down</span>
+</div>
+<div class="flex-grow pl-4 flex items-center gap-3">
+<div class="w-8 h-8 bg-surface-container border border-outline hidden sm:block">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAw_mX8HAhtnB_Dx1t5A0EyCyPs8FpN8AWNcOyrhKo5RGAMJwtC5xDBFw--eztKoo80RhBPC1zCHJcERgJ795acrSpceDGyFahZhnnvsgq4rUY2aEyt_35miXmB4dctQhI_rUnvCaGXTFXfSEKZWopnXN215Qywjj0W9iYfmr6hPl7GFZ_xi1mJUqxPYU2E3lzVLii6fZBxzOurZPuQHjuFSzskrth0FF0zquqBlgl3pcFexu6mkqkJvw"/>
+</div>
+<span class="font-label-mono text-label-mono text-on-surface group-hover:text-primary transition-colors">&gt; SPEED_RCR</span>
+</div>
+<div class="w-24 font-label-mono text-label-mono text-primary text-right">698,900</div>
+</div>
+</section>
+<!-- Sticky 'Your Rank' Card (Desktop) -->
+<div class="hidden md:flex fixed bottom-8 left-1/2 -translate-x-1/2 w-full max-w-[800px] bg-surface-container border-2 border-primary p-4 items-center justify-between z-40 inner-glow-neon block-shadow">
+<div class="flex items-center gap-4">
+<div class="font-headline-lg text-headline-lg text-primary font-black w-16 text-center">42</div>
+<div>
+<div class="font-label-mono text-xs text-primary mb-1">YOUR CURRENT RANK</div>
+<div class="font-label-mono text-label-mono text-on-surface">&gt; USER_ONE</div>
+</div>
+</div>
+<div class="text-right">
+<div class="font-label-mono text-xs text-outline mb-1">SCORE</div>
+<div class="font-label-mono text-label-mono text-primary">342,100</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 h-20 pb-safe bg-background border-t-4 border-outline-variant z-50 md:hidden">
+<a class="flex flex-col items-center justify-center text-outline scale-90 hover:text-primary w-1/4 h-full" href="index.html">
+<span class="material-symbols-outlined text-2xl mb-1">home</span>
+<span class="font-label-mono text-[10px] uppercase">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline scale-90 hover:text-primary w-1/4 h-full" href="game-detail.html">
+<span class="material-symbols-outlined text-2xl mb-1">sports_esports</span>
+<span class="font-label-mono text-[10px] uppercase">Arcade</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary text-on-primary rounded-none shadow-[4px_4px_0px_0px_#095300] inner-glow-neon w-1/4 h-[120%] -mt-4" href="leaderboard.html">
+<span class="material-symbols-outlined text-3xl mb-1" style="font-variation-settings: 'FILL' 1;">emoji_events</span>
+<span class="font-label-mono text-[10px] uppercase font-bold">Rank</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline scale-90 hover:text-primary w-1/4 h-full" href="profile.html">
+<span class="material-symbols-outlined text-2xl mb-1">person</span>
+<span class="font-label-mono text-[10px] uppercase">Profile</span>
+</a>
+</nav>
+<!-- Sticky 'Your Rank' Card (Mobile) -->
+<div class="md:hidden fixed bottom-20 left-0 w-full bg-surface-container border-t-2 border-primary p-3 flex items-center justify-between z-40 inner-glow-neon">
+<div class="flex items-center gap-3">
+<div class="font-headline-lg-mobile text-headline-lg-mobile text-primary font-black w-10 text-center">42</div>
+<div class="font-label-mono text-[12px] text-on-surface">USER_ONE</div>
+</div>
+<div class="font-label-mono text-[14px] text-primary">342,100</div>
+</div>
+</body></html>

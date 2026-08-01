@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PlayHub Retro - Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;800&amp;family=Space+Mono:wght@700&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "background": "#131314",
+                        "tertiary-fixed": "#ffdadb",
+                        "tertiary-container": "#ffd3d5",
+                        "outline-variant": "#3c4b35",
+                        "inverse-on-surface": "#313031",
+                        "tertiary-fixed-dim": "#ffb2b8",
+                        "on-tertiary-fixed": "#40000f",
+                        "surface-variant": "#353436",
+                        "error-container": "#93000a",
+                        "surface-container-low": "#1c1b1c",
+                        "secondary-fixed": "#f1daff",
+                        "surface-container-high": "#2a2a2b",
+                        "on-surface": "#e5e2e3",
+                        "primary": "#efffe3",
+                        "on-error": "#690005",
+                        "on-secondary": "#4b007e",
+                        "secondary": "#dfb7ff",
+                        "on-primary-fixed": "#022100",
+                        "surface-container": "#201f20",
+                        "on-tertiary-fixed-variant": "#91002d",
+                        "primary-fixed": "#79ff5b",
+                        "on-secondary-container": "#f7e6ff",
+                        "on-tertiary-container": "#c3003f",
+                        "primary-fixed-dim": "#2ae500",
+                        "on-primary-container": "#107100",
+                        "on-background": "#e5e2e3",
+                        "surface": "#131314",
+                        "secondary-container": "#9d05ff",
+                        "outline": "#85967c",
+                        "on-secondary-fixed": "#2d004f",
+                        "inverse-surface": "#e5e2e3",
+                        "on-primary-fixed-variant": "#095300",
+                        "surface-dim": "#131314",
+                        "surface-tint": "#2ae500",
+                        "surface-bright": "#3a393a",
+                        "inverse-primary": "#106e00",
+                        "on-surface-variant": "#baccb0",
+                        "surface-container-lowest": "#0e0e0f",
+                        "primary-container": "#39ff14",
+                        "error": "#ffb4ab",
+                        "tertiary": "#fff9f8",
+                        "surface-container-highest": "#353436",
+                        "secondary-fixed-dim": "#dfb7ff",
+                        "on-secondary-fixed-variant": "#6b00b0",
+                        "on-primary": "#053900",
+                        "on-tertiary": "#67001d",
+                        "on-error-container": "#ffdad6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base_unit": "4px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "32px",
+                        "grid_cols": "12",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Sora"],
+                        "headline-xl": ["Sora"],
+                        "headline-lg-mobile": ["Sora"],
+                        "headline-lg": ["Sora"],
+                        "label-mono": ["Space Mono"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-xl": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "800" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "1.2", "fontWeight": "800" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "label-mono": ["14px", { "lineHeight": "1.0", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .inner-glow-neon { box-shadow: inset 0 0 10px #39ff14; }
+        .text-glow { text-shadow: 0 0 8px rgba(57, 255, 20, 0.8); }
+        .arcade-shadow { box-shadow: 4px 4px 0px 0px #095300; }
+        .arcade-shadow-purple { box-shadow: 4px 4px 0px 0px #4b007e; }
+        .scanlines::before {
+            content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(to bottom, rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 4px; z-index: 50; pointer-events: none;
+        }
+        .blinking-cursor::after {
+            content: '█'; animation: blink 1s step-end infinite; color: #39ff14; margin-left: 4px;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        body { min-height: max(884px, 100dvh); }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col scanlines relative">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky z-50 flex justify-between items-center px-margin-mobile md:px-margin-desktop h-16 bg-background dark:bg-background border-b-4 border-outline-variant">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">videogame_asset</span>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg font-black text-primary drop-shadow-[0_0_8px_rgba(239,255,227,0.6)] uppercase text-glow"><a href="index.html">PLAYHUB_RETRO</a></h1>
+</div>
+<div class="hidden md:flex gap-8 items-center">
+<a class="font-label-mono text-xs text-on-surface-variant hover:text-primary uppercase" href="index.html">Home</a>
+<a class="font-label-mono text-xs text-on-surface-variant hover:text-primary uppercase" href="game-detail.html">Games</a>
+<a class="font-label-mono text-xs text-on-surface-variant hover:text-primary uppercase" href="leaderboard.html">Leaderboard</a>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow p-margin-mobile md:p-margin-desktop pb-28 md:pb-margin-desktop grid grid-cols-4 md:grid-cols-12 gap-gutter max-w-7xl mx-auto w-full">
+<!-- Profile Header Block -->
+<section class="col-span-4 md:col-span-12 bg-surface-container-high border border-[#222222] p-8 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
+<div class="absolute inset-0 opacity-10 bg-[repeating-linear-gradient(45deg,#39ff14,#39ff14_2px,transparent_2px,transparent_8px)]"></div>
+<div class="relative z-10 w-32 h-32 md:w-48 md:h-48 border-4 border-primary-container p-2 inner-glow-neon bg-black flex-shrink-0">
+<img alt="User Avatar" class="w-full h-full object-cover pixelated" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7hWC3huZ1a3sy5LxWNS8jHpOIAlaK_zyFsY_abj2a7IHMW6WtjapbZbY4G-cqAZM5Yz-ABhsdm_qtwaxwumo-Dg-sza3fuMUB23AV8oLyrEYSYVuVFTmZ4Vw4OgfhanN4V1DwC7-0oVcq4R3MwOZTbkLlUg_438rnJhZaEg3ZdspWpTGZV_m5onY_vX_gPqGso_6Yg9qpmxwJA4WRTXG2CyelmXJcD7FjNlJr8J_3rdJJgoiRd2ouPQ"/>
+</div>
+<div class="relative z-10 flex flex-col items-center md:items-start text-center md:text-left w-full">
+<h2 class="font-headline-xl text-headline-xl text-primary-container text-glow uppercase blinking-cursor mb-4">PLAYER_ONE</h2>
+<div class="grid grid-cols-3 w-full gap-4 mt-4">
+<div class="bg-black border-2 border-primary-container p-4 flex flex-col items-center">
+<span class="font-label-mono text-label-mono text-on-surface-variant uppercase mb-2">Level</span>
+<span class="font-headline-lg-mobile text-headline-lg-mobile text-primary text-glow">99</span>
+</div>
+<div class="bg-black border-2 border-secondary p-4 flex flex-col items-center">
+<span class="font-label-mono text-label-mono text-on-surface-variant uppercase mb-2">Highscore</span>
+<span class="font-headline-lg-mobile text-headline-lg-mobile text-secondary text-glow">9,450,300</span>
+</div>
+<div class="bg-black border-2 border-tertiary-container p-4 flex flex-col items-center">
+<span class="font-label-mono text-label-mono text-on-surface-variant uppercase mb-2">Total Coins</span>
+<span class="font-headline-lg-mobile text-headline-lg-mobile text-tertiary-container text-glow">54,200</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Achievements Bento -->
+<section class="col-span-4 md:col-span-8 flex flex-col gap-4">
+<h3 class="font-label-mono text-label-mono text-primary uppercase border-b border-outline-variant pb-2">&gt; Achievements</h3>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<!-- Badge 1 -->
+<div class="bg-surface-container-high border border-[#222222] p-4 flex flex-col items-center justify-center aspect-square hover:bg-surface-variant transition-colors group cursor-pointer relative overflow-hidden">
+<div class="absolute inset-0 border-2 border-transparent group-hover:border-primary-container transition-colors pointer-events-none"></div>
+<span class="material-symbols-outlined text-4xl text-yellow-400 mb-2 drop-shadow-[0_0_10px_rgba(250,204,21,0.8)]" style="font-variation-settings: 'FILL' 1;">trophy</span>
+<span class="font-label-mono text-[10px] text-center text-on-surface uppercase mt-2">First Blood</span>
+</div>
+<!-- Badge 2 -->
+<div class="bg-surface-container-high border border-[#222222] p-4 flex flex-col items-center justify-center aspect-square hover:bg-surface-variant transition-colors group cursor-pointer relative overflow-hidden">
+<div class="absolute inset-0 border-2 border-transparent group-hover:border-secondary transition-colors pointer-events-none"></div>
+<span class="material-symbols-outlined text-4xl text-secondary mb-2 drop-shadow-[0_0_10px_rgba(223,183,255,0.8)]" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="font-label-mono text-[10px] text-center text-on-surface uppercase mt-2">Completionist</span>
+</div>
+<!-- Badge 3 -->
+<div class="bg-surface-container-high border border-[#222222] p-4 flex flex-col items-center justify-center aspect-square hover:bg-surface-variant transition-colors group cursor-pointer relative overflow-hidden">
+<div class="absolute inset-0 border-2 border-transparent group-hover:border-error transition-colors pointer-events-none"></div>
+<span class="material-symbols-outlined text-4xl text-error mb-2 drop-shadow-[0_0_10px_rgba(255,180,171,0.8)]" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+<span class="font-label-mono text-[10px] text-center text-on-surface uppercase mt-2">100x Combo</span>
+</div>
+<!-- Badge 4 (Locked) -->
+<div class="bg-black border border-[#222222] p-4 flex flex-col items-center justify-center aspect-square opacity-50 relative">
+<span class="material-symbols-outlined text-4xl text-outline-variant mb-2">lock</span>
+<span class="font-label-mono text-[10px] text-center text-outline-variant uppercase mt-2">Secret</span>
+</div>
+</div>
+</section>
+<!-- Recent Games List -->
+<section class="col-span-4 md:col-span-4 flex flex-col gap-4">
+<h3 class="font-label-mono text-label-mono text-secondary uppercase border-b border-outline-variant pb-2">&gt; Recent Games</h3>
+<div class="flex flex-col gap-0 border border-[#222222] bg-surface-container-high">
+<!-- Game Item 1 -->
+<a href="game-detail.html" class="flex items-center gap-4 p-3 border-b border-[#222222] hover:bg-surface-variant cursor-pointer group">
+<span class="font-label-mono text-primary opacity-0 group-hover:opacity-100 transition-opacity w-4">&gt;</span>
+<div class="w-12 h-12 bg-black border border-outline-variant flex-shrink-0">
+<img alt="Game Thumb" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3ifE9VCd5JqNVZeTjoQ6V_9_r3MW8Wz7DncDjQWUw7fOrLtEHBAaSZWl8vbJhF9dpZRLiOns7bNbmAIYm2fPR-_3a0WoqEKFFoU5jfGDip4lQMIohPJBxuS5uzP3fdfRJXIDlSLUQS9U3795KtyILJDdq1I1l5Pry2t1_ibsy2vrKV703bhvCnxMVMksT4cFi7qBGsOHK8TmSepskGSDbAQUeBSBjJV9oDvPjB-dyX22j-OGtxBTFvg"/>
+</div>
+<div class="flex flex-col">
+<span class="font-label-mono text-label-mono text-on-surface uppercase">Neon Rider</span>
+<span class="font-label-mono text-[12px] text-primary">Score: 12,400</span>
+</div>
+</a>
+<!-- Game Item 2 -->
+<a href="game-detail.html" class="flex items-center gap-4 p-3 border-b border-[#222222] hover:bg-surface-variant cursor-pointer group">
+<span class="font-label-mono text-primary opacity-0 group-hover:opacity-100 transition-opacity w-4">&gt;</span>
+<div class="w-12 h-12 bg-black border border-outline-variant flex-shrink-0">
+<img alt="Game Thumb" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuALApAmMI0ji4rWMGvBbTX0JBXbZo7z6VK8QLi-8lPHcHXKN6ZNKpqZ9fmjX1jDjRzelQfp2FpHpOgu5I9D54GyQ6BuCJAMWimMISycxiTrGubrQLsPGkLf9KSvpkpjTlUSuS8Gp_C52FTNLNME9LSe8C8ClEUzynChEj4QzfU89ajBH2ASfa1rO5E3FJdrfkGQEqK1ImPckkCu8o4q3sd0JHhKcszxtyUuDr0_YZcQH-nuw6pV3HUTPQ"/>
+</div>
+<div class="flex flex-col">
+<span class="font-label-mono text-label-mono text-on-surface uppercase">Super Jump 64</span>
+<span class="font-label-mono text-[12px] text-primary">Score: 8,900</span>
+</div>
+</a>
+<!-- Game Item 3 -->
+<a href="game-detail.html" class="flex items-center gap-4 p-3 hover:bg-surface-variant cursor-pointer group">
+<span class="font-label-mono text-primary opacity-0 group-hover:opacity-100 transition-opacity w-4">&gt;</span>
+<div class="w-12 h-12 bg-black border border-outline-variant flex-shrink-0">
+<img alt="Game Thumb" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDu_S2LP9-JT2lEgH5BCkd8gl3CC2k3r0D6GhDCpUObNfqq5hAXgJDYm0RTR_5imt1_OawgKpJePTIkt4Y2Wss713sRtWhpQ_WmQaB8ZqIHekoi0rh_An6mHHCWTF0pUUuak6dBuXTzJM4kERSiqZ8FHRk8rQrUnnwIVyfO3s1GW-t1H47edi7LFgBGUMtlar4hIYtlF_0ylUFMIkxTTef0Msqlt1L8c9xYnW5pBWViYGVkJDYVUIXjSw"/>
+</div>
+<div class="flex flex-col">
+<span class="font-label-mono text-label-mono text-on-surface uppercase">Street Brawl</span>
+<span class="font-label-mono text-[12px] text-primary">Score: 45,000</span>
+</div>
+</a>
+</div>
+</section>
+<!-- Action Buttons -->
+<section class="col-span-4 md:col-span-12 flex flex-col md:flex-row gap-4 mt-8">
+<button onclick="alert('Profile Saved!')" class="flex-1 bg-primary-container text-black font-label-mono text-label-mono uppercase py-4 px-8 arcade-shadow hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-75">
+                Edit Profile
+            </button>
+<button onclick="alert('Stats Copied to Clipboard!')" class="flex-1 bg-secondary text-black font-label-mono text-label-mono uppercase py-4 px-8 arcade-shadow-purple hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-75">
+                Share Stats
+            </button>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-4 h-20 pb-safe bg-background dark:bg-background border-t-4 border-outline-variant z-50">
+<a class="flex flex-col items-center justify-center text-outline scale-90 hover:text-primary" href="index.html">
+<span class="material-symbols-outlined text-2xl">home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline scale-90 hover:text-primary" href="game-detail.html">
+<span class="material-symbols-outlined text-2xl">sports_esports</span>
+</a>
+<a class="flex flex-col items-center justify-center text-outline scale-90 hover:text-primary" href="leaderboard.html">
+<span class="material-symbols-outlined text-2xl">emoji_events</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary text-on-primary rounded-none shadow-[4px_4px_0px_0px_#095300] inner-glow-neon p-3" href="profile.html">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">person</span>
+</a>
+</nav>
+</body></html>
