@@ -3,6 +3,8 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>PlayHub Retro - Profile</title>
+<link rel="icon" type="image/png" href="assets/images/favicon.png"/>
+<link rel="apple-touch-icon" href="assets/images/logo.png"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;800&amp;family=Space+Mono:wght@700&amp;display=swap" rel="stylesheet"/>
@@ -105,14 +107,14 @@
             content: '█'; animation: blink 1s step-end infinite; color: #39ff14; margin-left: 4px;
         }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-        body { min-height: max(884px, 100dvh); }
+        body { min-height: 100dvh; }
     </style>
 </head>
 <body class="bg-background text-on-background font-body-md min-h-screen flex flex-col scanlines relative">
 <!-- TopAppBar -->
 <header class="w-full top-0 sticky z-50 flex justify-between items-center px-margin-mobile md:px-margin-desktop h-16 bg-background dark:bg-background border-b-4 border-outline-variant">
 <div class="flex items-center gap-4">
-<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">videogame_asset</span>
+<img src="assets/images/logo.png" alt="PLAYHUB Logo" class="h-9 w-9 object-contain" style="image-rendering:pixelated;"/>
 <h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg font-black text-primary drop-shadow-[0_0_8px_rgba(239,255,227,0.6)] uppercase text-glow"><a href="index.html">PLAYHUB_RETRO</a></h1>
 </div>
 <div class="hidden md:flex gap-8 items-center">

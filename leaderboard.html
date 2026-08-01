@@ -3,6 +3,8 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>PlayHub Retro - Global Leaderboard</title>
+<link rel="icon" type="image/png" href="assets/images/favicon.png"/>
+<link rel="apple-touch-icon" href="assets/images/logo.png"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;800&amp;family=Space+Mono:wght@700&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
@@ -99,14 +101,14 @@
         ::-webkit-scrollbar-track { background: #131314; border-left: 1px solid #222222; }
         ::-webkit-scrollbar-thumb { background: #39ff14; }
         ::-webkit-scrollbar-thumb:hover { background: #79ff5b; }
-        body { min-height: max(884px, 100dvh); }
+        body { min-height: 100dvh; }
     </style>
 </head>
 <body class="bg-background text-on-background min-h-screen flex flex-col font-body-md overflow-x-hidden">
 <!-- TopAppBar (Mobile) -->
 <header class="w-full top-0 sticky border-b-4 border-outline-variant flex justify-between items-center px-margin-mobile h-16 z-50 bg-background md:hidden">
 <div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-primary">videogame_asset</span>
+<img src="assets/images/logo.png" alt="PLAYHUB Logo" class="h-8 w-8 object-contain" style="image-rendering:pixelated;"/>
 <h1 class="font-headline-lg-mobile text-headline-lg-mobile uppercase font-black text-primary drop-shadow-[0_0_8px_rgba(239,255,227,0.6)]"><a href="index.html">PLAYHUB_RETRO</a></h1>
 </div>
 <a href="profile.html"><span class="material-symbols-outlined text-primary">person</span></a>
@@ -114,7 +116,7 @@
 <!-- Desktop Nav -->
 <nav class="hidden md:flex justify-between items-center px-margin-desktop py-4 bg-background border-b-4 border-outline-variant sticky top-0 z-50">
 <div class="flex items-center gap-4">
-<span class="material-symbols-outlined text-primary text-3xl">videogame_asset</span>
+<img src="assets/images/logo.png" alt="PLAYHUB Logo" class="h-9 w-9 object-contain" style="image-rendering:pixelated;"/>
 <h1 class="font-headline-lg text-headline-lg uppercase font-black text-primary drop-shadow-[0_0_8px_rgba(239,255,227,0.6)]"><a href="index.html">PLAYHUB_RETRO</a></h1>
 </div>
 <div class="flex gap-8">
