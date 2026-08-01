@@ -107,7 +107,7 @@
         .retro-scrollbar::-webkit-scrollbar-thumb { background: #39ff14; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
         .blinking-cursor::after { content: '█'; color: #39ff14; animation: blink 1s step-end infinite; margin-left: 4px; }
-        body { min-height: max(884px, 100dvh); }
+        body { min-height: 100dvh; }
     </style>
 </head>
 <body class="bg-background text-on-background font-body-md min-h-screen flex flex-col relative overflow-x-hidden">
@@ -256,17 +256,21 @@
         const btnRight = document.getElementById('btn-right');
         const btnJump = document.getElementById('btn-jump');
 
-        const bindTouch = (el, keyName) => {
-            el.addEventListener('mousedown', () => { game.keys[keyName] = true; });
-            el.addEventListener('mouseup', () => { game.keys[keyName] = false; });
-            el.addEventListener('touchstart', (e) => { e.preventDefault(); game.keys[keyName] = true; });
-            el.addEventListener('touchend', (e) => { e.preventDefault(); game.keys[keyName] = false; });
+        const bindMoveBtn = (el, keyName) => {
+            el.addEventListener('mousedown', (e) => { game.keys[keyName] = true; });
+            el.addEventListener('mouseup',   (e) => { game.keys[keyName] = false; });
+            el.addEventListener('mouseleave',(e) => { game.keys[keyName] = false; });
+            el.addEventListener('touchstart',(e) => { e.preventDefault(); game.keys[keyName] = true;  }, { passive: false });
+            el.addEventListener('touchend',  (e) => { e.preventDefault(); game.keys[keyName] = false; }, { passive: false });
+            el.addEventListener('touchcancel',(e) => { game.keys[keyName] = false; });
         };
 
-        bindTouch(btnLeft, 'left');
-        bindTouch(btnRight, 'right');
+        bindMoveBtn(btnLeft,  'left');
+        bindMoveBtn(btnRight, 'right');
 
-        btnJump.addEventListener('click', () => {
+        // Jump 버튼 - touchstart로 즉각 반응 (click보다 빠름)
+        const doJump = (e) => {
+            if (e.cancelable) e.preventDefault();
             if (game.isRunning && game.player.grounded) {
                 game.player.vy = game.player.jumpPower;
                 game.player.grounded = false;
@@ -274,7 +278,9 @@
             } else if (!game.isRunning) {
                 game.start();
             }
-        });
+        };
+        btnJump.addEventListener('touchstart', doJump, { passive: false });
+        btnJump.addEventListener('click', doJump);
     });
 </script>
 </body></html>

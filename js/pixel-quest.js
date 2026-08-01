@@ -156,8 +156,8 @@ class PixelQuestGame {
             }
         }
 
-        // Fall Death
-        if (this.player.y > 500) {
+        // Fall Death - canvas 높이 기준으로 동적 계산
+        if (this.player.y > this.canvas.height + 50) {
             this.takeDamage();
         }
 
@@ -286,9 +286,9 @@ class PixelQuestGame {
             } else {
                 this.ctx.fillText('PIXEL QUEST', this.canvas.width / 2, 180);
                 this.ctx.fillStyle = '#e5e2e3';
-                this.ctx.font = '18px "Space Mono", monospace';
-                this.ctx.fillText('PRESS INSERT COIN / START TO PLAY', this.canvas.width / 2, 240);
-                this.ctx.fillText('CONTROLS: ARROW KEYS / SPACEBAR', this.canvas.width / 2, 280);
+                this.ctx.font = '16px "Space Mono", monospace';
+                this.ctx.fillText('TAP "START GAME" BUTTON TO PLAY', this.canvas.width / 2, 240);
+                this.ctx.fillText('MOBILE: USE D-PAD BELOW   PC: ARROW KEYS', this.canvas.width / 2, 275);
             }
             this.ctx.textAlign = 'left';
         }
