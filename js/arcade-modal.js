@@ -1,9 +1,8 @@
 /**
- * ArcadeModalManager
- * - 모바일 풀스크린(Full Screen) 지원으로 스마트폰 화면을 꽉 채우는 몰입감
- * - 터치 D-Pad + 캔버스 손가락 스와이프(Swipe) 조작 완벽 지원 (스네이크 및 전체 아케이드 게임)
- * - e.key / e.code 모바일 가상 키보드 및 물리 키보드 하이브리드 지원
- * - 메모리 누수 방지 이벤트 리스너 클린업
+ * ArcadeModalManager (Classic Arcade Modal Suite)
+ * - 4종 클래식 아케이드 게임 제공 (Brick Breaker, Snake, Space Invaders, Tetris)
+ * - 모바일 풀스크린 & PC 중앙 팝업 자동 반응형
+ * - D-Pad, 액션 버튼, Touch Swipe 제스처, PC 방향키/WASD/Space 완벽 지원
  */
 class ArcadeModalManager {
     constructor() {
@@ -21,10 +20,9 @@ class ArcadeModalManager {
     initModal() {
         if (document.getElementById('arcade-modal')) return;
 
-        // sm 이상은 중앙 팝업, sm 미만 모바일은 화면 꽉 차는 풀스크린 레이아웃
         const modalHtml = `
-        <div id="arcade-modal" class="fixed inset-0 z-[100] hidden bg-black/95 flex flex-col justify-between p-2 sm:p-4 sm:flex sm:items-center sm:justify-center overflow-hidden">
-            <div class="bg-surface-container border-2 sm:border-4 border-primary-container p-3 sm:p-4 w-full h-full sm:h-auto sm:max-w-lg flex flex-col justify-between sm:justify-start gap-2 sm:gap-3 shadow-[0_0_25px_#39ff14]">
+        <div id="arcade-modal" class="fixed inset-0 z-[100] bg-black/95 p-2 sm:p-4 overflow-hidden" style="display: none;">
+            <div class="w-full h-full max-w-lg mx-auto flex flex-col justify-between bg-surface-container border-2 sm:border-4 border-primary-container p-3 sm:p-4 shadow-[0_0_25px_#39ff14] rounded-none">
                 
                 <!-- 모달 헤더 (점수 & 닫기) -->
                 <div class="flex justify-between items-center border-b-2 border-outline-variant pb-2 shrink-0">
@@ -34,45 +32,42 @@ class ArcadeModalManager {
                     </div>
                     <div class="flex items-center gap-3">
                         <span id="arcade-modal-score" class="text-primary font-bold text-xs sm:text-sm font-label-mono bg-black/60 px-2 py-1 border border-outline-variant">SCORE: 0</span>
-                        <button id="arcade-modal-close" class="bg-error-container text-on-error-container font-label-mono px-3 py-1 text-xs font-bold active:scale-95 transition-transform border border-error">✕ CLOSE</button>
+                        <button id="arcade-modal-close" class="bg-error-container text-on-error-container font-label-mono px-3 py-1 text-xs font-bold active:scale-95 transition-transform border border-error cursor-pointer">✕ CLOSE</button>
                     </div>
                 </div>
 
-                <!-- 게임 캔버스 컨테이너 (모바일 뷰포트 맞춤 꽉 차는 비율) -->
-                <div class="relative bg-black border-2 border-primary-container flex-grow sm:flex-grow-0 w-full overflow-hidden flex items-center justify-center min-h-[220px]" style="aspect-ratio: 16/9;">
+                <!-- 게임 캔버스 컨테이너 -->
+                <div class="relative bg-black border-2 border-primary-container flex-grow w-full overflow-hidden flex items-center justify-center my-2 min-h-[220px]" style="aspect-ratio: 16/9;">
                     <canvas id="arcade-modal-canvas" width="640" height="360" class="w-full h-full object-contain block touch-none"></canvas>
-                    <div id="arcade-swipe-hint" class="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/70 text-primary-container font-label-mono text-[10px] px-2 py-0.5 pointer-events-none rounded sm:hidden border border-primary-container/30">
-                        SWIPE CANVAS OR USE D-PAD
+                    <div id="arcade-swipe-hint" class="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/70 text-primary-container font-label-mono text-[10px] px-2 py-0.5 pointer-events-none rounded border border-primary-container/30">
+                        SWIPE / D-PAD / ARROW KEYS
                     </div>
                 </div>
 
-                <!-- 모바일 컨트롤 패널 (엄지손가락에 편안한 대형 컨트롤) -->
+                <!-- 모바일 터치 컨트롤 패널 -->
                 <div class="flex justify-between items-center gap-2 pt-1 select-none shrink-0" id="arcade-touch-pad">
-                    <!-- D-Pad 방향키 패널 -->
-                    <div class="grid grid-cols-3 gap-1.5" style="width: 150px; height: 120px;">
+                    <!-- D-Pad 방향키 -->
+                    <div class="grid grid-cols-3 gap-1.5" style="width: 140px; height: 110px;">
                         <div></div>
-                        <button id="arc-btn-up" class="arcade-dpad-btn flex items-center justify-center bg-surface-variant text-primary border-2 border-outline font-bold text-xl active:bg-primary-container active:text-black touch-none rounded-sm shadow-md" style="font-size:22px;">▲</button>
+                        <button id="arc-btn-up" class="arcade-dpad-btn flex items-center justify-center bg-surface-variant text-primary border-2 border-outline font-bold text-lg active:bg-primary-container active:text-black touch-none rounded-none shadow-md cursor-pointer">▲</button>
                         <div></div>
                         
-                        <button id="arc-btn-left" class="arcade-dpad-btn flex items-center justify-center bg-surface-variant text-primary border-2 border-outline font-bold text-xl active:bg-primary-container active:text-black touch-none rounded-sm shadow-md" style="font-size:22px;">◀</button>
-                        <div class="bg-surface-container-low border border-outline-variant flex items-center justify-center rounded-sm">
-                            <div class="w-3 h-3 bg-outline-variant/60 rounded-full"></div>
+                        <button id="arc-btn-left" class="arcade-dpad-btn flex items-center justify-center bg-surface-variant text-primary border-2 border-outline font-bold text-lg active:bg-primary-container active:text-black touch-none rounded-none shadow-md cursor-pointer">◀</button>
+                        <div class="bg-surface-container-low border border-outline-variant flex items-center justify-center rounded-none">
+                            <div class="w-2.5 h-2.5 bg-outline-variant/60 rounded-full"></div>
                         </div>
-                        <button id="arc-btn-right" class="arcade-dpad-btn flex items-center justify-center bg-surface-variant text-primary border-2 border-outline font-bold text-xl active:bg-primary-container active:text-black touch-none rounded-sm shadow-md" style="font-size:22px;">▶</button>
+                        <button id="arc-btn-right" class="arcade-dpad-btn flex items-center justify-center bg-surface-variant text-primary border-2 border-outline font-bold text-lg active:bg-primary-container active:text-black touch-none rounded-none shadow-md cursor-pointer">▶</button>
                         
                         <div></div>
-                        <button id="arc-btn-down" class="arcade-dpad-btn flex items-center justify-center bg-surface-variant text-primary border-2 border-outline font-bold text-xl active:bg-primary-container active:text-black touch-none rounded-sm shadow-md" style="font-size:22px;">▼</button>
+                        <button id="arc-btn-down" class="arcade-dpad-btn flex items-center justify-center bg-surface-variant text-primary border-2 border-outline font-bold text-lg active:bg-primary-container active:text-black touch-none rounded-none shadow-md cursor-pointer">▼</button>
                         <div></div>
                     </div>
 
-                    <!-- 오른쪽: 액션 버튼 + 힌트 -->
+                    <!-- 오른쪽: 액션 버튼 -->
                     <div class="flex flex-col items-end gap-1 flex-shrink-0">
-                        <button id="arc-btn-action" class="bg-primary-container text-on-primary-container font-label-mono font-black border-2 border-on-primary-container active:scale-95 touch-none rounded-sm flex items-center justify-center shadow-[0_0_10px_rgba(57,255,20,0.5)]" style="width: 110px; height: 100px; font-size: 16px; letter-spacing: 1px;">
-                            FIRE / PUSH<br>●
+                        <button id="arc-btn-action" class="bg-primary-container text-on-primary-container font-label-mono font-black border-2 border-on-primary-container active:scale-95 touch-none rounded-none flex items-center justify-center shadow-[0_0_10px_rgba(57,255,20,0.5)] cursor-pointer" style="width: 100px; height: 90px; font-size: 15px;">
+                            ROTATE<br>●
                         </button>
-                        <span class="font-label-mono text-[9px] text-on-surface-variant uppercase text-right leading-tight hidden sm:block">
-                            PC: ARROW KEYS / WASD<br>+ SPACEBAR
-                        </span>
                     </div>
                 </div>
 
@@ -89,9 +84,6 @@ class ArcadeModalManager {
         this.initSwipeControls();
     }
 
-    /**
-     * D-Pad 버튼에 touchstart/touchend, mousedown/mouseup 반응형 바인딩
-     */
     initTouchControls() {
         const bindDpad = (id, onDown, onUp) => {
             const btn = document.getElementById(id);
@@ -134,9 +126,6 @@ class ArcadeModalManager {
         );
     }
 
-    /**
-     * 캔버스 손가락 스와이프(Swipe) 터치 컨트롤 추가 (모바일 사용자 극대화)
-     */
     initSwipeControls() {
         let touchStartX = 0;
         let touchStartY = 0;
@@ -158,17 +147,14 @@ class ArcadeModalManager {
             const absDx = Math.abs(dx);
             const absDy = Math.abs(dy);
 
-            // 최소 15px 이상 스와이프 시 감지
             if (Math.max(absDx, absDy) > 15) {
                 if (absDx > absDy) {
-                    // 좌 / 우 스와이프
                     if (dx > 0) {
                         if (this.onDirectionChange) this.onDirectionChange('right');
                     } else {
                         if (this.onDirectionChange) this.onDirectionChange('left');
                     }
                 } else {
-                    // 상 / 하 스와이프
                     if (dy > 0) {
                         if (this.onDirectionChange) this.onDirectionChange('down');
                     } else {
@@ -176,7 +162,6 @@ class ArcadeModalManager {
                     }
                 }
             } else {
-                // 단순 터치/탭 시 액션 실행
                 if (this.onActionPress) this.onActionPress();
             }
         }, { passive: true });
@@ -203,29 +188,40 @@ class ArcadeModalManager {
         if (this.animId) cancelAnimationFrame(this.animId);
         this.animId = null;
 
-        this.modalEl.classList.remove('hidden');
+        this.modalEl.style.display = 'flex';
         if (window.retroAudio) window.retroAudio.playStart();
 
         const titleEl = document.getElementById('arcade-modal-title');
+        const actionBtn = document.getElementById('arc-btn-action');
         document.getElementById('arcade-modal-score').textContent = 'SCORE: 0';
 
         if (gameType === 'brick') {
             titleEl.textContent = 'BRICK BREAKER';
+            if (actionBtn) actionBtn.innerHTML = 'PUSH<br>●';
             this.runBrickBreaker();
         } else if (gameType === 'snake') {
             titleEl.textContent = 'SNAKE RETRO';
+            if (actionBtn) actionBtn.innerHTML = 'PUSH<br>●';
             this.runSnake();
         } else if (gameType === 'invaders') {
             titleEl.textContent = 'SPACE INVADERS';
+            if (actionBtn) actionBtn.innerHTML = 'FIRE<br>●';
             this.runSpaceInvaders();
+        } else if (gameType === 'tetris') {
+            titleEl.textContent = 'TETRIS STYLE';
+            if (actionBtn) actionBtn.innerHTML = 'ROTATE<br>↻';
+            this.runTetris();
         } else {
             titleEl.textContent = 'BRICK BREAKER';
+            if (actionBtn) actionBtn.innerHTML = 'PUSH<br>●';
             this.runBrickBreaker();
         }
     }
 
     close() {
-        if (this.modalEl) this.modalEl.classList.add('hidden');
+        if (this.modalEl) {
+            this.modalEl.style.display = 'none';
+        }
         if (this.animId) cancelAnimationFrame(this.animId);
         this.animId = null;
         this.clearListeners();
@@ -282,7 +278,6 @@ class ArcadeModalManager {
         this.addListener(window, 'keydown', onKeyDown);
         this.addListener(window, 'keyup', onKeyUp);
 
-        // 스와이프로 패들 이동 콜백
         this.onDirectionChange = (d) => {
             if (d === 'left') paddle.x = Math.max(0, paddle.x - 30);
             if (d === 'right') paddle.x = Math.min(W - paddle.w, paddle.x + 30);
@@ -370,7 +365,7 @@ class ArcadeModalManager {
                 this.ctx.fillText(`SCORE: ${score}`, W / 2, H / 2 + 5);
                 this.ctx.font = '14px monospace';
                 this.ctx.fillStyle = '#39ff14';
-                this.ctx.fillText('TAP PUSH / FIRE TO RETRY', W / 2, H / 2 + 45);
+                this.ctx.fillText('TAP PUSH TO RETRY', W / 2, H / 2 + 45);
                 this.ctx.textAlign = 'left';
             }
 
@@ -382,7 +377,7 @@ class ArcadeModalManager {
     /* ───────────── SNAKE ───────────── */
     runSnake() {
         const W = this.canvas.width, H = this.canvas.height;
-        const GRID = 20; // 그리드 크기 키워서 가시성 향상
+        const GRID = 20;
         const TX = Math.floor(W / GRID);
         const TY = Math.floor(H / GRID);
 
@@ -418,7 +413,6 @@ class ArcadeModalManager {
         };
         restart();
 
-        // 방향 전환 로직 (180도 반대방향 전환 방지 + 키/터치 완벽 호환)
         const changeDir = (d) => {
             if ((d === 'left' || d === 'a') && dir.x !== 1) nextDir = { x: -1, y: 0 };
             else if ((d === 'right' || d === 'd') && dir.x !== -1) nextDir = { x: 1, y: 0 };
@@ -429,7 +423,6 @@ class ArcadeModalManager {
         this.onDirectionChange = changeDir;
         this.onActionPress = () => { if (gameOver) restart(); };
 
-        // 키보드 이벤트 (e.code + e.key 이중 체크로 모바일/가상키보드 완벽 보장)
         const onKeyDown = (e) => {
             const k = (e.key || '').toLowerCase();
             const c = (e.code || '').toLowerCase();
@@ -453,7 +446,6 @@ class ArcadeModalManager {
                     y: (snake[0].y + dir.y + TY) % TY
                 };
 
-                // 자기 몸통과 충돌 감지
                 if (snake.some(s => s.x === head.x && s.y === head.y)) {
                     gameOver = true;
                     if (window.retroAudio) window.retroAudio.playGameOver();
@@ -471,11 +463,9 @@ class ArcadeModalManager {
                 }
             }
 
-            // ── 렌더링 ──
             this.ctx.fillStyle = '#0a0a0b';
             this.ctx.fillRect(0, 0, W, H);
 
-            // 레트로 격자
             this.ctx.strokeStyle = '#18181a';
             this.ctx.lineWidth = 0.5;
             for (let x = 0; x < W; x += GRID) {
@@ -485,20 +475,16 @@ class ArcadeModalManager {
                 this.ctx.beginPath(); this.ctx.moveTo(0, y); this.ctx.lineTo(W, y); this.ctx.stroke();
             }
 
-            // 먹이 (사과/코인 픽셀 아트 효과)
             this.ctx.fillStyle = '#ff4d6d';
             this.ctx.fillRect(food.x * GRID + 2, food.y * GRID + 2, GRID - 4, GRID - 4);
             this.ctx.fillStyle = '#ffb4ab';
             this.ctx.fillRect(food.x * GRID + 3, food.y * GRID + 3, GRID - 10, GRID - 10);
 
-            // 뱀 몸통 렌더링
             snake.forEach((part, i) => {
                 if (i === 0) {
-                    // 머리 (네온 그린 + 눈)
                     this.ctx.fillStyle = '#39ff14';
                     this.ctx.fillRect(part.x * GRID + 1, part.y * GRID + 1, GRID - 2, GRID - 2);
                     
-                    // 눈 위치 계산
                     this.ctx.fillStyle = '#000000';
                     if (dir.x === 1) {
                         this.ctx.fillRect(part.x * GRID + 12, part.y * GRID + 3, 4, 4);
@@ -514,7 +500,6 @@ class ArcadeModalManager {
                         this.ctx.fillRect(part.x * GRID + 13, part.y * GRID + 12, 4, 4);
                     }
                 } else {
-                    // 마디
                     this.ctx.fillStyle = i % 2 === 0 ? '#2ae500' : '#79ff5b';
                     this.ctx.fillRect(part.x * GRID + 1, part.y * GRID + 1, GRID - 2, GRID - 2);
                 }
@@ -532,7 +517,7 @@ class ArcadeModalManager {
                 this.ctx.fillText(`FINAL SCORE: ${score}  |  LENGTH: ${snake.length}`, W / 2, H / 2 + 5);
                 this.ctx.font = '14px monospace';
                 this.ctx.fillStyle = '#39ff14';
-                this.ctx.fillText('TAP PUSH / FIRE TO PLAY AGAIN', W / 2, H / 2 + 45);
+                this.ctx.fillText('TAP PUSH TO PLAY AGAIN', W / 2, H / 2 + 45);
                 this.ctx.textAlign = 'left';
             }
 
@@ -700,7 +685,221 @@ class ArcadeModalManager {
                 this.ctx.fillText(`SCORE: ${score}`, W / 2, H / 2 + 5);
                 this.ctx.font = '14px monospace';
                 this.ctx.fillStyle = '#39ff14';
-                this.ctx.fillText('TAP PUSH / FIRE TO RETRY', W / 2, H / 2 + 45);
+                this.ctx.fillText('TAP PUSH TO RETRY', W / 2, H / 2 + 45);
+                this.ctx.textAlign = 'left';
+            }
+
+            this.animId = requestAnimationFrame(loop);
+        };
+
+        loop(0);
+    }
+
+    /* ───────────── TETRIS STYLE ───────────── */
+    runTetris() {
+        const W = this.canvas.width, H = this.canvas.height;
+        const BLOCK = 18;
+        const COLS = 10;
+        const ROWS = 18;
+        const boardX = Math.floor((W - COLS * BLOCK) / 2);
+        const boardY = Math.floor((H - ROWS * BLOCK) / 2);
+
+        let board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+        let score = 0;
+        let gameOver = false;
+        let lastDrop = 0;
+
+        const SHAPES = [
+            [[1, 1, 1, 1]], // I
+            [[1, 1], [1, 1]], // O
+            [[0, 1, 0], [1, 1, 1]], // T
+            [[1, 0, 0], [1, 1, 1]], // L
+            [[0, 0, 1], [1, 1, 1]], // J
+            [[0, 1, 1], [1, 1, 0]], // S
+            [[1, 1, 0], [0, 1, 1]]  // Z
+        ];
+        const COLORS = ['#00ffff', '#ffff00', '#dfb7ff', '#ffb4ab', '#39ff14', '#79ff5b', '#ff4d6d'];
+
+        let piece = null;
+
+        const spawnPiece = () => {
+            const typeIdx = Math.floor(Math.random() * SHAPES.length);
+            piece = {
+                shape: SHAPES[typeIdx],
+                color: COLORS[typeIdx],
+                x: Math.floor(COLS / 2) - 1,
+                y: 0
+            };
+            if (collide(piece.x, piece.y, piece.shape)) {
+                gameOver = true;
+                if (window.retroAudio) window.retroAudio.playGameOver();
+            }
+        };
+
+        const collide = (px, py, shape) => {
+            for (let r = 0; r < shape.length; r++) {
+                for (let c = 0; c < shape[r].length; c++) {
+                    if (shape[r][c]) {
+                        let newX = px + c;
+                        let newY = py + r;
+                        if (newX < 0 || newX >= COLS || newY >= ROWS) return true;
+                        if (newY >= 0 && board[newY][newX]) return true;
+                    }
+                }
+            }
+            return false;
+        };
+
+        const rotate = (matrix) => {
+            return matrix[0].map((_, i) => matrix.map(row => row[i]).reverse());
+        };
+
+        const rotatePiece = () => {
+            if (!piece || gameOver) return;
+            const rotated = rotate(piece.shape);
+            if (!collide(piece.x, piece.y, rotated)) {
+                piece.shape = rotated;
+                if (window.retroAudio) window.retroAudio.playJump();
+            }
+        };
+
+        const moveLeft = () => {
+            if (!piece || gameOver) return;
+            if (!collide(piece.x - 1, piece.y, piece.shape)) piece.x--;
+        };
+
+        const moveRight = () => {
+            if (!piece || gameOver) return;
+            if (!collide(piece.x + 1, piece.y, piece.shape)) piece.x++;
+        };
+
+        const drop = () => {
+            if (!piece || gameOver) return;
+            if (!collide(piece.x, piece.y + 1, piece.shape)) {
+                piece.y++;
+            } else {
+                // Lock piece
+                for (let r = 0; r < piece.shape.length; r++) {
+                    for (let c = 0; c < piece.shape[r].length; c++) {
+                        if (piece.shape[r][c]) {
+                            if (piece.y + r >= 0) {
+                                board[piece.y + r][piece.x + c] = piece.color;
+                            }
+                        }
+                    }
+                }
+                // Clear lines
+                let lines = 0;
+                for (let r = ROWS - 1; r >= 0; r--) {
+                    if (board[r].every(cell => cell !== 0)) {
+                        board.splice(r, 1);
+                        board.unshift(Array(COLS).fill(0));
+                        lines++;
+                        r++;
+                    }
+                }
+                if (lines > 0) {
+                    score += lines * 200;
+                    document.getElementById('arcade-modal-score').textContent = `SCORE: ${score}`;
+                    if (window.retroAudio) window.retroAudio.playCoin();
+                }
+                spawnPiece();
+            }
+        };
+
+        const restart = () => {
+            board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+            score = 0;
+            gameOver = false;
+            lastDrop = 0;
+            document.getElementById('arcade-modal-score').textContent = 'SCORE: 0';
+            spawnPiece();
+        };
+
+        spawnPiece();
+
+        this.onActionPress = () => {
+            if (gameOver) restart();
+            else rotatePiece();
+        };
+
+        this.onDirectionChange = (d) => {
+            if (d === 'left') moveLeft();
+            if (d === 'right') moveRight();
+            if (d === 'down') drop();
+            if (d === 'up') rotatePiece();
+        };
+
+        const onKeyDown = (e) => {
+            const k = (e.key || '').toLowerCase();
+            const c = (e.code || '').toLowerCase();
+
+            if (k === 'arrowleft' || c === 'arrowleft' || k === 'a') moveLeft();
+            else if (k === 'arrowright' || c === 'arrowright' || k === 'd') moveRight();
+            else if (k === 'arrowdown' || c === 'arrowdown' || k === 's') drop();
+            else if (k === 'arrowup' || c === 'arrowup' || k === 'w') rotatePiece();
+            else if ((k === ' ' || c === 'space')) {
+                if (gameOver) restart(); else rotatePiece();
+            }
+        };
+        this.addListener(window, 'keydown', onKeyDown);
+
+        const loop = (timestamp) => {
+            if (!gameOver && timestamp - lastDrop > 500) {
+                lastDrop = timestamp;
+                drop();
+            }
+
+            this.ctx.fillStyle = '#0a0a0b';
+            this.ctx.fillRect(0, 0, W, H);
+
+            // Draw Board Frame
+            this.ctx.strokeStyle = '#39ff14';
+            this.ctx.lineWidth = 2;
+            this.ctx.strokeRect(boardX - 2, boardY - 2, COLS * BLOCK + 4, ROWS * BLOCK + 4);
+
+            // Draw Grid & Board Blocks
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    const bx = boardX + c * BLOCK;
+                    const by = boardY + r * BLOCK;
+                    if (board[r][c]) {
+                        this.ctx.fillStyle = board[r][c];
+                        this.ctx.fillRect(bx + 1, by + 1, BLOCK - 2, BLOCK - 2);
+                    } else {
+                        this.ctx.strokeStyle = '#18181a';
+                        this.ctx.strokeRect(bx, by, BLOCK, BLOCK);
+                    }
+                }
+            }
+
+            // Draw Falling Piece
+            if (piece && !gameOver) {
+                this.ctx.fillStyle = piece.color;
+                for (let r = 0; r < piece.shape.length; r++) {
+                    for (let c = 0; c < piece.shape[r].length; c++) {
+                        if (piece.shape[r][c]) {
+                            const bx = boardX + (piece.x + c) * BLOCK;
+                            const by = boardY + (piece.y + r) * BLOCK;
+                            this.ctx.fillRect(bx + 1, by + 1, BLOCK - 2, BLOCK - 2);
+                        }
+                    }
+                }
+            }
+
+            if (gameOver) {
+                this.ctx.fillStyle = 'rgba(0,0,0,0.85)';
+                this.ctx.fillRect(0, 0, W, H);
+                this.ctx.textAlign = 'center';
+                this.ctx.fillStyle = '#ff4d6d';
+                this.ctx.font = 'bold 36px monospace';
+                this.ctx.fillText('TETRIS GAME OVER', W / 2, H / 2 - 40);
+                this.ctx.fillStyle = '#efffe3';
+                this.ctx.font = '18px monospace';
+                this.ctx.fillText(`FINAL SCORE: ${score}`, W / 2, H / 2 + 5);
+                this.ctx.font = '14px monospace';
+                this.ctx.fillStyle = '#39ff14';
+                this.ctx.fillText('TAP ROTATE / PUSH TO PLAY AGAIN', W / 2, H / 2 + 45);
                 this.ctx.textAlign = 'left';
             }
 

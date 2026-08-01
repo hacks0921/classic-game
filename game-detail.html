@@ -149,17 +149,18 @@
 </div>
 </div>
 <!-- HTML5 Game Viewport -->
-<div class="flex-grow relative bg-black flex items-center justify-center overflow-hidden">
-<canvas id="pixel-quest-canvas" width="800" height="450" class="w-full h-full object-contain bg-black"></canvas>
+<div class="relative bg-black flex items-center justify-center overflow-hidden w-full aspect-video">
+<canvas id="pixel-quest-canvas" width="800" height="450" class="w-full h-full object-contain bg-black block"></canvas>
 </div>
 <!-- Touch D-Pad / Controls for Mobile & Mouse -->
-<div class="bg-surface-container-high p-2.5 sm:p-4 flex justify-between items-center border-t border-outline-variant select-none">
+<div class="bg-surface-container-high p-3 flex justify-between items-center border-t border-outline-variant select-none">
 <div class="flex gap-2">
-<button id="btn-left" class="bg-surface-variant text-primary font-label-mono px-5 sm:px-6 py-3 border-2 border-outline font-black text-base sm:text-lg select-none active:bg-primary-container active:text-black touch-none rounded-none shadow-md">◀ LEFT</button>
-<button id="btn-right" class="bg-surface-variant text-primary font-label-mono px-5 sm:px-6 py-3 border-2 border-outline font-black text-base sm:text-lg select-none active:bg-primary-container active:text-black touch-none rounded-none shadow-md">RIGHT ▶</button>
+<button id="btn-left" class="bg-surface-variant text-primary font-label-mono px-4 sm:px-6 py-2.5 sm:py-3 border-2 border-outline font-black text-sm sm:text-base select-none active:bg-primary-container active:text-black touch-none rounded-none shadow-md cursor-pointer">◀ LEFT</button>
+<button id="btn-right" class="bg-surface-variant text-primary font-label-mono px-4 sm:px-6 py-2.5 sm:py-3 border-2 border-outline font-black text-sm sm:text-base select-none active:bg-primary-container active:text-black touch-none rounded-none shadow-md cursor-pointer">RIGHT ▶</button>
 </div>
-<button id="btn-jump" class="bg-primary-container text-on-primary-container font-label-mono px-6 sm:px-8 py-3 border-2 border-on-primary-container font-black text-base sm:text-lg select-none active:scale-95 touch-none rounded-none shadow-[0_0_10px_rgba(57,255,20,0.5)]">JUMP ⯅</button>
+<button id="btn-jump" class="bg-primary-container text-on-primary-container font-label-mono px-6 sm:px-8 py-2.5 sm:py-3 border-2 border-on-primary-container font-black text-sm sm:text-base select-none active:scale-95 touch-none rounded-none shadow-[0_0_10px_rgba(57,255,20,0.5)] cursor-pointer">JUMP ⯅</button>
 </div>
+
 </div>
 <!-- Game Info & Action -->
 <div class="md:col-span-4 flex flex-col gap-6">
@@ -249,9 +250,27 @@
         const game = new PixelQuestGame('pixel-quest-canvas');
         game.render();
 
-        document.getElementById('btn-start-game').addEventListener('click', () => {
+        const startGame = (e) => {
+            if (e && e.cancelable) e.preventDefault();
             game.start();
-        });
+        };
+
+        const startBtn = document.getElementById('btn-start-game');
+        if (startBtn) {
+            startBtn.addEventListener('click', startGame);
+            startBtn.addEventListener('touchstart', startGame, { passive: false });
+        }
+
+        const canvasEl = document.getElementById('pixel-quest-canvas');
+        if (canvasEl) {
+            canvasEl.addEventListener('click', () => { if (!game.isRunning) game.start(); });
+            canvasEl.addEventListener('touchstart', (e) => {
+                if (!game.isRunning) {
+                    if (e.cancelable) e.preventDefault();
+                    game.start();
+                }
+            }, { passive: false });
+        }
 
         // Touch / Screen Controls
         const btnLeft = document.getElementById('btn-left');
@@ -259,20 +278,21 @@
         const btnJump = document.getElementById('btn-jump');
 
         const bindMoveBtn = (el, keyName) => {
+            if (!el) return;
             el.addEventListener('mousedown', (e) => { game.keys[keyName] = true; });
             el.addEventListener('mouseup',   (e) => { game.keys[keyName] = false; });
             el.addEventListener('mouseleave',(e) => { game.keys[keyName] = false; });
-            el.addEventListener('touchstart',(e) => { e.preventDefault(); game.keys[keyName] = true;  }, { passive: false });
-            el.addEventListener('touchend',  (e) => { e.preventDefault(); game.keys[keyName] = false; }, { passive: false });
+            el.addEventListener('touchstart',(e) => { if (e.cancelable) e.preventDefault(); game.keys[keyName] = true;  }, { passive: false });
+            el.addEventListener('touchend',  (e) => { if (e.cancelable) e.preventDefault(); game.keys[keyName] = false; }, { passive: false });
             el.addEventListener('touchcancel',(e) => { game.keys[keyName] = false; });
         };
 
         bindMoveBtn(btnLeft,  'left');
         bindMoveBtn(btnRight, 'right');
 
-        // Jump 버튼 - touchstart로 즉각 반응 (click보다 빠름)
+        // Jump 버튼 - touchstart로 즉각 반응
         const doJump = (e) => {
-            if (e.cancelable) e.preventDefault();
+            if (e && e.cancelable) e.preventDefault();
             if (game.isRunning && game.player.grounded) {
                 game.player.vy = game.player.jumpPower;
                 game.player.grounded = false;
@@ -281,8 +301,10 @@
                 game.start();
             }
         };
-        btnJump.addEventListener('touchstart', doJump, { passive: false });
-        btnJump.addEventListener('click', doJump);
+        if (btnJump) {
+            btnJump.addEventListener('touchstart', doJump, { passive: false });
+            btnJump.addEventListener('click', doJump);
+        }
     });
 </script>
 </body></html>
