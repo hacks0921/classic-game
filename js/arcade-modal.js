@@ -1121,9 +1121,7 @@ class ArcadeModalManager {
 
         loop(0);
     }
-
-        loop(0);
-    }
 }
+
 
 window.arcadeModalManager = new ArcadeModalManager();
