@@ -134,9 +134,9 @@
 </div>
 </header>
 <!-- Main Content Canvas -->
-<main class="flex-grow px-margin-mobile md:px-margin-desktop py-8 pb-32 max-w-7xl mx-auto w-full flex flex-col gap-8 md:gap-16">
+<main class="flex-grow px-2 md:px-margin-desktop py-3 md:py-8 pb-28 max-w-7xl mx-auto w-full flex flex-col gap-6 md:gap-16">
 <!-- Hero Section: Game Preview & Start Button -->
-<section class="grid grid-cols-1 md:grid-cols-12 gap-gutter md:gap-8 items-start">
+<section class="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-8 items-start">
 <!-- Game Screen Canvas Viewport -->
 <div class="md:col-span-8 machine-shell rounded-none brutal-border relative aspect-video overflow-hidden flex flex-col">
 <!-- Header Bar -->
@@ -153,12 +153,12 @@
 <canvas id="pixel-quest-canvas" width="800" height="450" class="w-full h-full object-contain bg-black"></canvas>
 </div>
 <!-- Touch D-Pad / Controls for Mobile & Mouse -->
-<div class="bg-surface-container-high p-3 flex justify-between items-center border-t border-outline-variant">
+<div class="bg-surface-container-high p-2.5 sm:p-4 flex justify-between items-center border-t border-outline-variant select-none">
 <div class="flex gap-2">
-<button id="btn-left" class="bg-surface-variant text-primary font-label-mono px-4 py-2 border border-outline font-bold text-sm select-none active:bg-primary-container active:text-black">◀ LEFT</button>
-<button id="btn-right" class="bg-surface-variant text-primary font-label-mono px-4 py-2 border border-outline font-bold text-sm select-none active:bg-primary-container active:text-black">RIGHT ▶</button>
+<button id="btn-left" class="bg-surface-variant text-primary font-label-mono px-5 sm:px-6 py-3 border-2 border-outline font-black text-base sm:text-lg select-none active:bg-primary-container active:text-black touch-none rounded-none shadow-md">◀ LEFT</button>
+<button id="btn-right" class="bg-surface-variant text-primary font-label-mono px-5 sm:px-6 py-3 border-2 border-outline font-black text-base sm:text-lg select-none active:bg-primary-container active:text-black touch-none rounded-none shadow-md">RIGHT ▶</button>
 </div>
-<button id="btn-jump" class="bg-primary-container text-on-primary-container font-label-mono px-6 py-2 border border-primary-container font-bold text-sm select-none active:scale-95">JUMP [SPACE]</button>
+<button id="btn-jump" class="bg-primary-container text-on-primary-container font-label-mono px-6 sm:px-8 py-3 border-2 border-on-primary-container font-black text-base sm:text-lg select-none active:scale-95 touch-none rounded-none shadow-[0_0_10px_rgba(57,255,20,0.5)]">JUMP ⯅</button>
 </div>
 </div>
 <!-- Game Info & Action -->
