@@ -1,8 +1,8 @@
 /**
  * ArcadeModalManager (Classic Arcade Modal Suite)
  * - 4종 클래식 아케이드 게임 제공 (Brick Breaker, Snake, Space Invaders, Tetris)
- * - 모바일 풀스크린 & PC 중앙 팝업 자동 반응형
- * - D-Pad, 액션 버튼, Touch Swipe 제스처, PC 방향키/WASD/Space 완벽 지원
+ * - 모바일/스마트폰 100% 뷰포트 공간 활용 캔버스
+ * - 스마트폰 터치 이동 추적(Touch Drag/Move Delta Tracking) 및 가상 D-Pad
  */
 class ArcadeModalManager {
     constructor() {
@@ -14,6 +14,7 @@ class ArcadeModalManager {
         this.touchState = { left: false, right: false, up: false, down: false };
         this.onActionPress = null;
         this.onDirectionChange = null;
+        this.onDragMove = null; // 터치 드래그 이동 감지 콜백 (dx, dy, touchX, touchY)
         this.initModal();
     }
 
@@ -22,29 +23,29 @@ class ArcadeModalManager {
 
         const modalHtml = `
         <div id="arcade-modal" class="fixed inset-0 z-[100] bg-black/95 p-2 sm:p-4 overflow-hidden" style="display: none;">
-            <div class="w-full h-full max-w-lg mx-auto flex flex-col justify-between bg-surface-container border-2 sm:border-4 border-primary-container p-3 sm:p-4 shadow-[0_0_25px_#39ff14] rounded-none">
+            <div class="w-full h-full max-w-lg mx-auto flex flex-col justify-between bg-surface-container border-2 sm:border-4 border-primary-container p-2 sm:p-4 shadow-[0_0_25px_#39ff14] rounded-none">
                 
-                <!-- 모달 헤더 (점수 & 닫기) -->
+                <!-- 모달 헤더 -->
                 <div class="flex justify-between items-center border-b-2 border-outline-variant pb-2 shrink-0">
                     <div class="flex items-center gap-2">
                         <span class="w-2.5 h-2.5 bg-primary-container animate-pulse rounded-full"></span>
                         <h3 id="arcade-modal-title" class="font-headline-lg-mobile text-headline-lg-mobile text-primary-container uppercase text-sm sm:text-base tracking-wide font-black">ARCADE</h3>
                     </div>
                     <div class="flex items-center gap-3">
-                        <span id="arcade-modal-score" class="text-primary font-bold text-xs sm:text-sm font-label-mono bg-black/60 px-2 py-1 border border-outline-variant">SCORE: 0</span>
+                        <span id="arcade-modal-score" class="text-primary font-bold text-xs sm:text-sm font-label-mono bg-black/60 px-2.5 py-1 border border-outline-variant">SCORE: 0</span>
                         <button id="arcade-modal-close" class="bg-error-container text-on-error-container font-label-mono px-3 py-1 text-xs font-bold active:scale-95 transition-transform border border-error cursor-pointer">✕ CLOSE</button>
                     </div>
                 </div>
 
-                <!-- 게임 캔버스 컨테이너 -->
-                <div class="relative bg-black border-2 border-primary-container flex-grow w-full overflow-hidden flex items-center justify-center my-2 min-h-[220px]" style="aspect-ratio: 16/9;">
-                    <canvas id="arcade-modal-canvas" width="640" height="360" class="w-full h-full object-contain block touch-none"></canvas>
-                    <div id="arcade-swipe-hint" class="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/70 text-primary-container font-label-mono text-[10px] px-2 py-0.5 pointer-events-none rounded border border-primary-container/30">
-                        SWIPE / D-PAD / ARROW KEYS
+                <!-- 게임 캔버스 컨테이너 (화면 꽉 차는 풀 공간) -->
+                <div class="relative bg-black border-2 border-primary-container flex-grow w-full overflow-hidden flex items-[stretch] justify-center my-2 min-h-[240px]">
+                    <canvas id="arcade-modal-canvas" width="640" height="420" class="w-full h-full object-fill block touch-none"></canvas>
+                    <div id="arcade-swipe-hint" class="absolute top-2 left-1/2 -translate-x-1/2 bg-black/80 text-primary-container font-label-mono text-[10px] px-2 py-0.5 pointer-events-none rounded border border-primary-container/30">
+                        DRAG CANVAS TO MOVE / TAP TO FIRE
                     </div>
                 </div>
 
-                <!-- 모바일 터치 컨트롤 패널 -->
+                <!-- 모바일 터치 패널 -->
                 <div class="flex justify-between items-center gap-2 pt-1 select-none shrink-0" id="arcade-touch-pad">
                     <!-- D-Pad 방향키 -->
                     <div class="grid grid-cols-3 gap-1.5" style="width: 140px; height: 110px;">
@@ -66,7 +67,7 @@ class ArcadeModalManager {
                     <!-- 오른쪽: 액션 버튼 -->
                     <div class="flex flex-col items-end gap-1 flex-shrink-0">
                         <button id="arc-btn-action" class="bg-primary-container text-on-primary-container font-label-mono font-black border-2 border-on-primary-container active:scale-95 touch-none rounded-none flex items-center justify-center shadow-[0_0_10px_rgba(57,255,20,0.5)] cursor-pointer" style="width: 100px; height: 90px; font-size: 15px;">
-                            ROTATE<br>●
+                            FIRE<br>●
                         </button>
                     </div>
                 </div>
@@ -81,90 +82,160 @@ class ArcadeModalManager {
 
         document.getElementById('arcade-modal-close').addEventListener('click', () => this.close());
         this.initTouchControls();
-        this.initSwipeControls();
+        this.initDragAndTouchTracking();
     }
 
+    /**
+     * D-Pad 터치 감지 개선 (손가락 누른 채 움직여도 버튼 위치 추적)
+     */
     initTouchControls() {
-        const bindDpad = (id, onDown, onUp) => {
-            const btn = document.getElementById(id);
-            if (!btn) return;
-            const handleDown = (e) => {
-                if (e.cancelable) e.preventDefault();
-                onDown && onDown();
-            };
-            const handleUp = (e) => {
-                if (e.cancelable) e.preventDefault();
-                onUp && onUp();
-            };
-            btn.addEventListener('touchstart', handleDown, { passive: false });
-            btn.addEventListener('touchend', handleUp, { passive: false });
-            btn.addEventListener('touchcancel', handleUp, { passive: false });
-            btn.addEventListener('mousedown', handleDown);
-            btn.addEventListener('mouseup', handleUp);
-            btn.addEventListener('mouseleave', handleUp);
+        const updateTouchFromPoint = (x, y, isDown) => {
+            const el = document.elementFromPoint(x, y);
+            if (!el) return;
+            const id = el.id || el.parentElement?.id;
+            
+            if (!isDown) {
+                this.touchState = { left: false, right: false, up: false, down: false };
+                return;
+            }
+
+            if (id === 'arc-btn-left') {
+                this.touchState.left = true;
+                if (this.onDirectionChange) this.onDirectionChange('left');
+            } else if (id === 'arc-btn-right') {
+                this.touchState.right = true;
+                if (this.onDirectionChange) this.onDirectionChange('right');
+            } else if (id === 'arc-btn-up') {
+                this.touchState.up = true;
+                if (this.onDirectionChange) this.onDirectionChange('up');
+            } else if (id === 'arc-btn-down') {
+                this.touchState.down = true;
+                if (this.onDirectionChange) this.onDirectionChange('down');
+            } else if (id === 'arc-btn-action') {
+                if (this.onActionPress) this.onActionPress();
+            }
         };
 
-        bindDpad('arc-btn-left',
-            () => { this.touchState.left = true; if (this.onDirectionChange) this.onDirectionChange('left'); },
-            () => { this.touchState.left = false; }
-        );
-        bindDpad('arc-btn-right',
-            () => { this.touchState.right = true; if (this.onDirectionChange) this.onDirectionChange('right'); },
-            () => { this.touchState.right = false; }
-        );
-        bindDpad('arc-btn-up',
-            () => { this.touchState.up = true; if (this.onDirectionChange) this.onDirectionChange('up'); },
-            () => { this.touchState.up = false; }
-        );
-        bindDpad('arc-btn-down',
-            () => { this.touchState.down = true; if (this.onDirectionChange) this.onDirectionChange('down'); },
-            () => { this.touchState.down = false; }
-        );
-        bindDpad('arc-btn-action',
-            () => { if (this.onActionPress) this.onActionPress(); },
-            () => { }
-        );
+        const pad = document.getElementById('arcade-touch-pad');
+        if (!pad) return;
+
+        pad.addEventListener('touchstart', (e) => {
+            if (e.touches && e.touches.length > 0) {
+                const t = e.touches[0];
+                updateTouchFromPoint(t.clientX, t.clientY, true);
+            }
+        }, { passive: false });
+
+        pad.addEventListener('touchmove', (e) => {
+            if (e.touches && e.touches.length > 0) {
+                if (e.cancelable) e.preventDefault();
+                const t = e.touches[0];
+                updateTouchFromPoint(t.clientX, t.clientY, true);
+            }
+        }, { passive: false });
+
+        pad.addEventListener('touchend', (e) => {
+            updateTouchFromPoint(0, 0, false);
+        }, { passive: false });
+
+        // 액션 버튼 명시적 탭
+        const actBtn = document.getElementById('arc-btn-action');
+        if (actBtn) {
+            actBtn.addEventListener('touchstart', (e) => {
+                if (e.cancelable) e.preventDefault();
+                if (this.onActionPress) this.onActionPress();
+            }, { passive: false });
+            actBtn.addEventListener('click', () => {
+                if (this.onActionPress) this.onActionPress();
+            });
+        }
     }
 
-    initSwipeControls() {
-        let touchStartX = 0;
-        let touchStartY = 0;
+    /**
+     * 캔버스 직접 드래그 & 터치 이동 감지 (Touch Move Delta & Direct Tracking)
+     * - 손가락으로 문지르면 실시간 위치 감지 및 우주선/패들이 손가락 X 좌표를 즉시 추적
+     */
+    initDragAndTouchTracking() {
+        let isTouching = false;
+        let startTouchX = 0, startTouchY = 0;
+        let lastX = 0, lastY = 0;
+        let hasMoved = false;
+
+        const handleStart = (clientX, clientY) => {
+            isTouching = true;
+            hasMoved = false;
+            startTouchX = clientX;
+            startTouchY = clientY;
+            lastX = clientX;
+            lastY = clientY;
+            
+            const rect = this.canvas.getBoundingClientRect();
+            const relX = ((clientX - rect.left) / rect.width) * this.canvas.width;
+            const relY = ((clientY - rect.top) / rect.height) * this.canvas.height;
+            
+            if (this.onDragMove) this.onDragMove(0, 0, relX, relY);
+        };
+
+        const handleMove = (clientX, clientY) => {
+            if (!isTouching) return;
+            const dx = clientX - lastX;
+            const dy = clientY - lastY;
+            const totalDist = Math.hypot(clientX - startTouchX, clientY - startTouchY);
+            
+            if (totalDist > 6) hasMoved = true;
+
+            lastX = clientX;
+            lastY = clientY;
+
+            const rect = this.canvas.getBoundingClientRect();
+            const relX = ((clientX - rect.left) / rect.width) * this.canvas.width;
+            const relY = ((clientY - rect.top) / rect.height) * this.canvas.height;
+
+            if (this.onDragMove) this.onDragMove(dx, dy, relX, relY);
+
+            if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    if (dx > 0 && this.onDirectionChange) this.onDirectionChange('right');
+                    else if (dx < 0 && this.onDirectionChange) this.onDirectionChange('left');
+                } else {
+                    if (dy > 0 && this.onDirectionChange) this.onDirectionChange('down');
+                    else if (dy < 0 && this.onDirectionChange) this.onDirectionChange('up');
+                }
+            }
+        };
+
+        const handleEnd = () => {
+            isTouching = false;
+        };
 
         this.canvas.addEventListener('touchstart', (e) => {
             if (e.touches && e.touches.length > 0) {
-                touchStartX = e.touches[0].clientX;
-                touchStartY = e.touches[0].clientY;
+                handleStart(e.touches[0].clientX, e.touches[0].clientY);
             }
         }, { passive: true });
 
-        this.canvas.addEventListener('touchend', (e) => {
-            if (!e.changedTouches || e.changedTouches.length === 0) return;
-            const touchEndX = e.changedTouches[0].clientX;
-            const touchEndY = e.changedTouches[0].clientY;
-            
-            const dx = touchEndX - touchStartX;
-            const dy = touchEndY - touchStartY;
-            const absDx = Math.abs(dx);
-            const absDy = Math.abs(dy);
-
-            if (Math.max(absDx, absDy) > 15) {
-                if (absDx > absDy) {
-                    if (dx > 0) {
-                        if (this.onDirectionChange) this.onDirectionChange('right');
-                    } else {
-                        if (this.onDirectionChange) this.onDirectionChange('left');
-                    }
-                } else {
-                    if (dy > 0) {
-                        if (this.onDirectionChange) this.onDirectionChange('down');
-                    } else {
-                        if (this.onDirectionChange) this.onDirectionChange('up');
-                    }
-                }
-            } else {
-                if (this.onActionPress) this.onActionPress();
+        this.canvas.addEventListener('touchmove', (e) => {
+            if (e.touches && e.touches.length > 0) {
+                if (e.cancelable) e.preventDefault();
+                handleMove(e.touches[0].clientX, e.touches[0].clientY);
             }
-        }, { passive: true });
+        }, { passive: false });
+
+        this.canvas.addEventListener('touchend', handleEnd, { passive: true });
+
+        this.canvas.addEventListener('mousedown', (e) => {
+            handleStart(e.clientX, e.clientY);
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (isTouching) handleMove(e.clientX, e.clientY);
+        });
+
+        window.addEventListener('mouseup', handleEnd);
+
+        this.canvas.addEventListener('click', (e) => {
+            if (!hasMoved && this.onActionPress) this.onActionPress();
+        });
     }
 
     addListener(target, event, fn, options) {
@@ -179,6 +250,7 @@ class ArcadeModalManager {
         this.activeListeners = [];
         this.onActionPress = null;
         this.onDirectionChange = null;
+        this.onDragMove = null;
         this.touchState = { left: false, right: false, up: false, down: false };
     }
 
@@ -230,15 +302,15 @@ class ArcadeModalManager {
     /* ───────────── BRICK BREAKER ───────────── */
     runBrickBreaker() {
         const W = this.canvas.width, H = this.canvas.height;
-        let paddle = { x: W / 2 - 50, y: H - 30, w: 100, h: 12, speed: 9 };
-        let ball = { x: W / 2, y: H - 55, radius: 7, vx: 4.5, vy: -4.5 };
+        let paddle = { x: W / 2 - 55, y: H - 28, w: 110, h: 14, speed: 10 };
+        let ball = { x: W / 2, y: H - 55, radius: 7, vx: 5, vy: -5 };
         let score = 0;
         let gameOver = false;
         let keys = {};
 
         const rows = 4, cols = 8;
         const brickW = Math.floor((W - 24) / cols) - 5;
-        const brickH = 20, padding = 5, offsetTop = 35, offsetLeft = 12;
+        const brickH = 22, padding = 5, offsetTop = 30, offsetLeft = 12;
         let bricks = [];
 
         const initBricks = () => {
@@ -252,8 +324,8 @@ class ArcadeModalManager {
         initBricks();
 
         const restart = () => {
-            paddle.x = W / 2 - 50;
-            ball = { x: W / 2, y: H - 55, radius: 7, vx: 4.5, vy: -4.5 };
+            paddle.x = W / 2 - 55;
+            ball = { x: W / 2, y: H - 55, radius: 7, vx: 5, vy: -5 };
             score = 0;
             gameOver = false;
             initBricks();
@@ -261,6 +333,13 @@ class ArcadeModalManager {
         };
 
         this.onActionPress = () => { if (gameOver) restart(); };
+
+        // 손가락 드래그 시 패들 직접 위치 따라옴!
+        this.onDragMove = (dx, dy, relX) => {
+            if (relX !== undefined) {
+                paddle.x = Math.max(0, Math.min(W - paddle.w, relX - paddle.w / 2));
+            }
+        };
 
         const onKeyDown = (e) => {
             const code = e.code || '';
@@ -279,8 +358,8 @@ class ArcadeModalManager {
         this.addListener(window, 'keyup', onKeyUp);
 
         this.onDirectionChange = (d) => {
-            if (d === 'left') paddle.x = Math.max(0, paddle.x - 30);
-            if (d === 'right') paddle.x = Math.min(W - paddle.w, paddle.x + 30);
+            if (d === 'left') paddle.x = Math.max(0, paddle.x - 35);
+            if (d === 'right') paddle.x = Math.min(W - paddle.w, paddle.x + 35);
         };
 
         const loop = () => {
@@ -301,7 +380,7 @@ class ArcadeModalManager {
                     ball.x >= paddle.x - 4 && ball.x <= paddle.x + paddle.w + 4) {
                     ball.vy = -Math.abs(ball.vy);
                     const hitRatio = (ball.x - paddle.x) / paddle.w;
-                    ball.vx = (hitRatio - 0.5) * 10;
+                    ball.vx = (hitRatio - 0.5) * 11;
                     if (window.retroAudio) window.retroAudio.playJump();
                 }
 
@@ -354,7 +433,7 @@ class ArcadeModalManager {
             this.ctx.fill();
 
             if (gameOver) {
-                this.ctx.fillStyle = 'rgba(0,0,0,0.75)';
+                this.ctx.fillStyle = 'rgba(0,0,0,0.85)';
                 this.ctx.fillRect(0, 0, W, H);
                 this.ctx.textAlign = 'center';
                 this.ctx.fillStyle = '#ffb4ab';
@@ -365,7 +444,7 @@ class ArcadeModalManager {
                 this.ctx.fillText(`SCORE: ${score}`, W / 2, H / 2 + 5);
                 this.ctx.font = '14px monospace';
                 this.ctx.fillStyle = '#39ff14';
-                this.ctx.fillText('TAP PUSH TO RETRY', W / 2, H / 2 + 45);
+                this.ctx.fillText('TAP CANVAS TO RETRY', W / 2, H / 2 + 45);
                 this.ctx.textAlign = 'left';
             }
 
@@ -517,7 +596,7 @@ class ArcadeModalManager {
                 this.ctx.fillText(`FINAL SCORE: ${score}  |  LENGTH: ${snake.length}`, W / 2, H / 2 + 5);
                 this.ctx.font = '14px monospace';
                 this.ctx.fillStyle = '#39ff14';
-                this.ctx.fillText('TAP PUSH TO PLAY AGAIN', W / 2, H / 2 + 45);
+                this.ctx.fillText('TAP CANVAS TO PLAY AGAIN', W / 2, H / 2 + 45);
                 this.ctx.textAlign = 'left';
             }
 
@@ -527,10 +606,11 @@ class ArcadeModalManager {
         this.animId = requestAnimationFrame(loop);
     }
 
-    /* ───────────── SPACE INVADERS ───────────── */
+    /* ───────────── SPACE INVADERS (공간 최적화 & 대형 4행 인베이더) ───────────── */
     runSpaceInvaders() {
         const W = this.canvas.width, H = this.canvas.height;
-        let player = { x: W / 2 - 18, y: H - 40, w: 36, h: 20 };
+        // 총 쏘는 애(우주선) 위치: Y좌표를 바닥 바로 위(H - 28)로 내려서 전체 Y 공간 100% 가득 사용!
+        let player = { x: W / 2 - 20, y: H - 28, w: 40, h: 20 };
         let bullets = [];
         let invaders = [];
         let score = 0;
@@ -540,11 +620,27 @@ class ArcadeModalManager {
         let invaderTimer = 0;
         let lastShot = 0;
 
+        // 인베이더 위치: 캔버스 최상단(y=15) 근처부터 시작! 4행 10열 꽉 찬 배치!
         const createInvaders = () => {
             invaders = [];
-            for (let r = 0; r < 3; r++) {
-                for (let c = 0; c < 9; c++) {
-                    invaders.push({ x: c * 58 + 40, y: r * 36 + 28, w: 28, h: 18, alive: true });
+            const cols = 10;
+            const rows = 4;
+            const invW = 32;
+            const invH = 20;
+            const paddingX = 22;
+            const paddingY = 14;
+            const startX = Math.floor((W - (cols * (invW + paddingX) - paddingX)) / 2);
+            const startY = 15; // 캔버스 최상단 바로 아래부터 시작!
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    invaders.push({
+                        x: startX + c * (invW + paddingX),
+                        y: startY + r * (invH + paddingY),
+                        w: invW,
+                        h: invH,
+                        alive: true
+                    });
                 }
             }
         };
@@ -552,14 +648,14 @@ class ArcadeModalManager {
 
         const fireBullet = () => {
             const now = Date.now();
-            if (now - lastShot < 280) return;
+            if (now - lastShot < 250) return;
             lastShot = now;
-            bullets.push({ x: player.x + player.w / 2 - 2, y: player.y, w: 4, h: 12 });
+            bullets.push({ x: player.x + player.w / 2 - 2, y: player.y - 8, w: 4, h: 14 });
             if (window.retroAudio) window.retroAudio.playJump();
         };
 
         const restart = () => {
-            player.x = W / 2 - 18;
+            player.x = W / 2 - 20;
             bullets = [];
             score = 0;
             invaderDir = 1;
@@ -572,9 +668,16 @@ class ArcadeModalManager {
 
         this.onActionPress = () => { if (!gameOver) fireBullet(); else restart(); };
 
+        // 손가락 드래그 시 우주선이 실시간으로 손가락 X좌표를 즉시 따라옴!
+        this.onDragMove = (dx, dy, relX) => {
+            if (relX !== undefined) {
+                player.x = Math.max(0, Math.min(W - player.w, relX - player.w / 2));
+            }
+        };
+
         this.onDirectionChange = (d) => {
-            if (d === 'left') player.x = Math.max(0, player.x - 20);
-            if (d === 'right') player.x = Math.min(W - player.w, player.x + 20);
+            if (d === 'left') player.x = Math.max(0, player.x - 25);
+            if (d === 'right') player.x = Math.min(W - player.w, player.x + 25);
         };
 
         const onKeyDown = (e) => {
@@ -595,25 +698,25 @@ class ArcadeModalManager {
 
         const loop = (timestamp) => {
             if (!gameOver) {
-                if (keys['left'] || this.touchState.left) player.x = Math.max(0, player.x - 5);
-                if (keys['right'] || this.touchState.right) player.x = Math.min(W - player.w, player.x + 5);
+                if (keys['left'] || this.touchState.left) player.x = Math.max(0, player.x - 6);
+                if (keys['right'] || this.touchState.right) player.x = Math.min(W - player.w, player.x + 6);
 
-                for (let b of bullets) b.y -= 9;
+                for (let b of bullets) b.y -= 11;
                 bullets = bullets.filter(b => b.y > -20);
 
                 invaderTimer++;
                 const alive = invaders.filter(i => i.alive);
-                const interval = Math.max(4, 28 - (27 - alive.length));
+                const interval = Math.max(3, 24 - (40 - alive.length));
                 if (invaderTimer >= interval) {
                     invaderTimer = 0;
                     let hitWall = false;
                     for (let inv of alive) {
                         inv.x += invaderDir * 7;
-                        if (inv.x <= 2 || inv.x + inv.w >= W - 2) hitWall = true;
+                        if (inv.x <= 4 || inv.x + inv.w >= W - 4) hitWall = true;
                     }
                     if (hitWall) {
                         invaderDir *= -1;
-                        for (let inv of invaders) inv.y += 12;
+                        for (let inv of invaders) inv.y += 14;
                     }
                 }
 
@@ -638,46 +741,55 @@ class ArcadeModalManager {
                 }
             }
 
+            // ── 렌더링 ──
             this.ctx.fillStyle = '#0a0a0b';
             this.ctx.fillRect(0, 0, W, H);
 
+            // 우주 배경 별
             this.ctx.fillStyle = '#ffffff';
-            for (let s = 0; s < 40; s++) {
+            for (let s = 0; s < 45; s++) {
                 const sx = ((s * 97 + 13) * 7) % W;
                 const sy = ((s * 137 + 5) * 11) % H;
                 this.ctx.fillRect(sx, sy, s % 3 === 0 ? 2 : 1, s % 3 === 0 ? 2 : 1);
             }
 
+            // 총 쏘는 우주선 (바닥 근처)
             this.ctx.fillStyle = '#39ff14';
             this.ctx.fillRect(player.x + 4, player.y + 6, player.w - 8, player.h - 6);
-            this.ctx.fillRect(player.x + player.w / 2 - 3, player.y, 6, 8);
+            this.ctx.fillRect(player.x + player.w / 2 - 3, player.y - 4, 6, 10);
             this.ctx.fillRect(player.x, player.y + 10, 8, 10);
             this.ctx.fillRect(player.x + player.w - 8, player.y + 10, 8, 10);
 
+            // 총알 (길쭉하고 빠른 에너제틱 빔)
             this.ctx.fillStyle = '#efffe3';
             bullets.forEach(b => {
                 this.ctx.fillRect(b.x, b.y, b.w, b.h);
+                this.ctx.fillStyle = 'rgba(57,255,20,0.5)';
+                this.ctx.fillRect(b.x - 1, b.y + 2, b.w + 2, b.h - 2);
+                this.ctx.fillStyle = '#efffe3';
             });
 
+            // 침략자 (상단 최상단 4행)
             invaders.forEach((inv, i) => {
                 if (!inv.alive) return;
-                const row = Math.floor(i / 9);
-                this.ctx.fillStyle = ['#dfb7ff', '#ffb4ab', '#79ff5b'][row] || '#dfb7ff';
+                const row = Math.floor(i / 10);
+                this.ctx.fillStyle = ['#dfb7ff', '#ff4d6d', '#ffb4ab', '#79ff5b'][row] || '#dfb7ff';
                 this.ctx.fillRect(inv.x + 2, inv.y + 4, inv.w - 4, inv.h - 4);
-                this.ctx.fillRect(inv.x + 4, inv.y, 3, 5);
-                this.ctx.fillRect(inv.x + inv.w - 7, inv.y, 3, 5);
-                this.ctx.fillRect(inv.x, inv.y + inv.h - 5, 5, 5);
-                this.ctx.fillRect(inv.x + inv.w - 5, inv.y + inv.h - 5, 5, 5);
+                this.ctx.fillRect(inv.x + 5, inv.y, 4, 5);
+                this.ctx.fillRect(inv.x + inv.w - 9, inv.y, 4, 5);
+                this.ctx.fillRect(inv.x, inv.y + inv.h - 5, 6, 5);
+                this.ctx.fillRect(inv.x + inv.w - 6, inv.y + inv.h - 5, 6, 5);
             });
 
+            // 땅선 (바닥 바로 위 H - 6)
             this.ctx.fillStyle = '#39ff14';
-            this.ctx.fillRect(0, H - 18, W, 2);
+            this.ctx.fillRect(0, H - 6, W, 2);
 
             if (gameOver) {
                 this.ctx.fillStyle = 'rgba(0,0,0,0.85)';
                 this.ctx.fillRect(0, 0, W, H);
                 this.ctx.textAlign = 'center';
-                this.ctx.fillStyle = win ? '#39ff14' : '#ffb4ab';
+                this.ctx.fillStyle = win ? '#39ff14' : '#ff4d6d';
                 this.ctx.font = 'bold 36px monospace';
                 this.ctx.fillText(win ? '★ YOU WIN! ★' : 'GAME OVER', W / 2, H / 2 - 40);
                 this.ctx.fillStyle = '#efffe3';
@@ -685,7 +797,7 @@ class ArcadeModalManager {
                 this.ctx.fillText(`SCORE: ${score}`, W / 2, H / 2 + 5);
                 this.ctx.font = '14px monospace';
                 this.ctx.fillStyle = '#39ff14';
-                this.ctx.fillText('TAP PUSH TO RETRY', W / 2, H / 2 + 45);
+                this.ctx.fillText('TAP CANVAS / FIRE TO RETRY', W / 2, H / 2 + 45);
                 this.ctx.textAlign = 'left';
             }
 
@@ -698,9 +810,9 @@ class ArcadeModalManager {
     /* ───────────── TETRIS STYLE ───────────── */
     runTetris() {
         const W = this.canvas.width, H = this.canvas.height;
-        const BLOCK = 18;
+        const BLOCK = 20;
         const COLS = 10;
-        const ROWS = 18;
+        const ROWS = 19;
         const boardX = Math.floor((W - COLS * BLOCK) / 2);
         const boardY = Math.floor((H - ROWS * BLOCK) / 2);
 
@@ -710,13 +822,13 @@ class ArcadeModalManager {
         let lastDrop = 0;
 
         const SHAPES = [
-            [[1, 1, 1, 1]], // I
-            [[1, 1], [1, 1]], // O
-            [[0, 1, 0], [1, 1, 1]], // T
-            [[1, 0, 0], [1, 1, 1]], // L
-            [[0, 0, 1], [1, 1, 1]], // J
-            [[0, 1, 1], [1, 1, 0]], // S
-            [[1, 1, 0], [0, 1, 1]]  // Z
+            [[1, 1, 1, 1]],
+            [[1, 1], [1, 1]],
+            [[0, 1, 0], [1, 1, 1]],
+            [[1, 0, 0], [1, 1, 1]],
+            [[0, 0, 1], [1, 1, 1]],
+            [[0, 1, 1], [1, 1, 0]],
+            [[1, 1, 0], [0, 1, 1]]
         ];
         const COLORS = ['#00ffff', '#ffff00', '#dfb7ff', '#ffb4ab', '#39ff14', '#79ff5b', '#ff4d6d'];
 
@@ -778,7 +890,6 @@ class ArcadeModalManager {
             if (!collide(piece.x, piece.y + 1, piece.shape)) {
                 piece.y++;
             } else {
-                // Lock piece
                 for (let r = 0; r < piece.shape.length; r++) {
                     for (let c = 0; c < piece.shape[r].length; c++) {
                         if (piece.shape[r][c]) {
@@ -788,7 +899,6 @@ class ArcadeModalManager {
                         }
                     }
                 }
-                // Clear lines
                 let lines = 0;
                 for (let r = ROWS - 1; r >= 0; r--) {
                     if (board[r].every(cell => cell !== 0)) {
@@ -845,7 +955,7 @@ class ArcadeModalManager {
         this.addListener(window, 'keydown', onKeyDown);
 
         const loop = (timestamp) => {
-            if (!gameOver && timestamp - lastDrop > 500) {
+            if (!gameOver && timestamp - lastDrop > 450) {
                 lastDrop = timestamp;
                 drop();
             }
@@ -853,12 +963,10 @@ class ArcadeModalManager {
             this.ctx.fillStyle = '#0a0a0b';
             this.ctx.fillRect(0, 0, W, H);
 
-            // Draw Board Frame
             this.ctx.strokeStyle = '#39ff14';
             this.ctx.lineWidth = 2;
             this.ctx.strokeRect(boardX - 2, boardY - 2, COLS * BLOCK + 4, ROWS * BLOCK + 4);
 
-            // Draw Grid & Board Blocks
             for (let r = 0; r < ROWS; r++) {
                 for (let c = 0; c < COLS; c++) {
                     const bx = boardX + c * BLOCK;
@@ -873,7 +981,6 @@ class ArcadeModalManager {
                 }
             }
 
-            // Draw Falling Piece
             if (piece && !gameOver) {
                 this.ctx.fillStyle = piece.color;
                 for (let r = 0; r < piece.shape.length; r++) {
@@ -899,7 +1006,7 @@ class ArcadeModalManager {
                 this.ctx.fillText(`FINAL SCORE: ${score}`, W / 2, H / 2 + 5);
                 this.ctx.font = '14px monospace';
                 this.ctx.fillStyle = '#39ff14';
-                this.ctx.fillText('TAP ROTATE / PUSH TO PLAY AGAIN', W / 2, H / 2 + 45);
+                this.ctx.fillText('TAP CANVAS TO PLAY AGAIN', W / 2, H / 2 + 45);
                 this.ctx.textAlign = 'left';
             }
 
